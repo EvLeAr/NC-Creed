@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Line Ordering Game</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#instructions {
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 25px;
+}
+
+#lineContainer {
+    margin-top: 20px;
+}
+
+.line {
+    display: flex;
+    align-items: center;
+    padding: 14px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f7f7f7;
+    font-size: 1.1em;
+    cursor: grab;
+}
+
+.line.dragging {
+    opacity: 0.4;
+}
+
+.text {
+    flex-grow: 1;
+    padding: 0 12px;
+}
+
+.controls {
+    display: flex;
+    gap: 6px;
+}
+
+button {
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+#buttons {
+    text-align: center;
+    margin-top: 25px;
+}
+
+#result {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Put the Text in the Correct Order</h1>
+
+<div id="instructions">
+Drag the lines (or use arrows) until the text is in the correct order.
+</div>
+
+<div id="lineContainer"></div>
+
+<div id="buttons">
+    <button onclick="checkOrder()">Check Order</button>
+    <button onclick="reshuffle()">Reshuffle</button>
+</div>
+
+<div id="result"></div>
+
+<script>
+/* ====== YOUR TEXT GOES HERE ====== */
+const SOURCE_TEXT = `
+Line one goes here
+Line two goes here
+Line three goes here
+Line four goes here
+`.trim().split("\n");
+
+/* ====== HASHING (solution is not stored plainly) ====== */
+function hash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = (h << 5) - h + str.charCodeAt(i);
+        h |= 0;
+    }
+    return h;
+}
+const solutionHash = hash(SOURCE_TEXT.join("||"));
+
+/* ====== GAME STATE ====== */
+let lines = [];
+
+function shuffle(array) {
+    return array
+        .map(v => ({ v, r: Math.random() }))
+        .sort((a, b) => a.r - b.r)
+        .map(o => o.v);
+}
+
+function init() {
+    lines = shuffle([...SOURCE_TEXT]);
+    render();
+    document.getElementById("result").textContent = "";
+}
+
+function render() {
+    const container = document.getElementById("lineContainer");
+    container.innerHTML = "";
+
+    lines.forEach((line, index) => {
+        const div = document.createElement("div");
+        div.className = "line";
+        div.draggable = true;
+
+        div.addEventListener("dragstart", () => {
+            div.classList.add("dragging");
+            div.dataset.index = index;
+        });
+
+        div.addEventListener("dragend", () => {
+            div.classList.remove("dragging");
+        });
+
+        div.addEventListener("dragover", e => e.preventDefault());
+
+        div.addEventListener("drop", e => {
+            e.preventDefault();
+            const from = +document.querySelector(".dragging").dataset.index;
+            const to = index;
+            move(from, to);
+        });
+
+        const controls = document.createElement("div");
+        controls.className = "controls";
+
+        const up = document.createElement("button");
+        up.textContent = "↑";
+        up.onclick = () => swap(index, index - 1);
+
+        const down = document.createElement("button");
+        down.textContent = "↓";
+        down.onclick = () => swap(index, index + 1);
+
+        controls.appendChild(up);
+        controls.appendChild(down);
+
+        const text = document.createElement("div");
+        text.className = "text";
+        text.textContent = line;
+
+        div.appendChild(controls);
+        div.appendChild(text);
+        container.appendChild(div);
+    });
+}
+
+function swap(i, j) {
+    if (j < 0 || j >= lines.length) return;
+    [lines[i], lines[j]] = [lines[j], lines[i]];
+    render();
+}
+
+function move(from, to) {
+    const item = lines.splice(from, 1)[0];
+    lines.splice(to, 0, item);
+    render();
+}
+
+function checkOrder() {
+    const attemptHash = hash(lines.join("||"));
+    const result = document.getElementById("result");
+
+    if (attemptHash === solutionHash) {
+        result.textContent = "Correct ✔";
+        result.style.color = "green";
+    } else {
+        result.textContent = "Not correct yet ✘";
+        result.style.color = "red";
+    }
+}
+
+function reshuffle() {
+    init();
+}
+
+init();
+</script>
+
+</body>
+</html>
