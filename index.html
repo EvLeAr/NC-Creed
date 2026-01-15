@@ -47,7 +47,6 @@ h1 {
     border-radius: 10px;
     background: #ffffff;
     font-size: 1.05em;
-    cursor: grab;
     font-weight: bold;
 }
 
@@ -72,7 +71,7 @@ h1 {
 button {
     font-size: 0.9em;
     cursor: pointer;
-    padding: 5px 9px;
+    padding: 6px 10px;
     border-radius: 6px;
     border: 1px solid #888;
     background: #e8ecf3;
@@ -98,6 +97,41 @@ button:hover {
     font-size: 1.4em;
     font-weight: bold;
 }
+
+/* ====== MOBILE FRIENDLY CONTROLS ====== */
+@media (hover: none) and (pointer: coarse) {
+
+    .line {
+        cursor: default;
+    }
+
+    .controls {
+        flex-direction: column;
+        margin-right: 8px;
+    }
+
+    .controls button {
+        font-size: 1.1em;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: white;
+        border: none;
+    }
+
+    .controls button:first-child {
+        background-color: #2e7d32;
+    }
+
+    .controls button:last-child {
+        background-color: #c62828;
+    }
+
+    .controls button:active {
+        transform: scale(0.95);
+        opacity: 0.85;
+    }
+}
 </style>
 </head>
 
@@ -113,8 +147,7 @@ button:hover {
 <h1>back in order!</h1>
 
 <div id="instructions">
-Drag the lines (or use arrows) until the text is in the correct order.
-Luckily, the line number survived in twelve of these sentences.
+On computers, drag the lines. On phones, use the UP and DOWN buttons.
 </div>
 
 <div id="lineContainer"></div>
@@ -203,17 +236,12 @@ function stopTimer() {
 /* ====== GAME STATE ====== */
 let lines = [];
 
-function shuffle(array) {
-    return array
-        .map(v => ({
-            text: v,
-            color: COLORS[Math.floor(Math.random() * COLORS.length)]
-        }))
-        .sort(() => Math.random() - 0.5);
-}
-
 function init() {
-    lines = shuffle([...SOURCE_TEXT]);
+    lines = SOURCE_TEXT.map(text => ({
+        text,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+    })).sort(() => Math.random() - 0.5);
+
     render();
     document.getElementById("result").textContent = "";
     document.getElementById("result").style.color = "";
@@ -250,11 +278,11 @@ function render() {
         controls.className = "controls";
 
         const up = document.createElement("button");
-        up.textContent = "↑";
+        up.textContent = "↑ UP";
         up.onclick = () => swap(index, index - 1);
 
         const down = document.createElement("button");
-        down.textContent = "↓";
+        down.textContent = "↓ DOWN";
         down.onclick = () => swap(index, index + 1);
 
         controls.appendChild(up);
