@@ -18,41 +18,45 @@ body {
     font-family: Arial, sans-serif;
     max-width: 1100px;
     margin: 20px auto;
-    padding: 10px;
+    padding: 12px;
     background: linear-gradient(
         rgba(247,251,255,0.93),
         rgba(238,246,255,0.93)
     );
-    transition: background-color 1s;
 }
 
 /* ===== HEADERS ===== */
 h1 {
     text-align: center;
     margin: 6px 0;
+    color: #1f3b57;
 }
 
 #story {
     text-align: center;
     font-weight: bold;
-    margin: 18px 0;
-    line-height: 1.6;
+    margin: 22px 0;
+    line-height: 1.7;
+    font-size: 1.15rem;
+    color: #2b4f6b;
 }
 
 #status {
     text-align: center;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-size: 1.05rem;
+    color: #243f55;
 }
 
 /* ===== AUDIO ===== */
 #audioBox {
-    margin: 20px 0;
-    padding: 15px;
+    margin: 22px 0;
+    padding: 16px;
     border: 3px dashed #9bb7d9;
     background: #f4f9ff;
     text-align: center;
-    border-radius: 12px;
+    border-radius: 14px;
 }
 #audioBox.unlocked {
     border-color: #2e7d32;
@@ -61,10 +65,12 @@ h1 {
 #audioHelp {
     margin-bottom: 10px;
     font-style: italic;
+    font-size: 1.05rem;
+    color: #355d7a;
 }
 #audioControls button {
     margin: 6px;
-    padding: 10px 16px;
+    padding: 10px 18px;
     font-size: 1rem;
     font-weight: bold;
     border-radius: 10px;
@@ -74,61 +80,70 @@ h1 {
 #headers {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 14px;
+    margin-bottom: 10px;
 }
 .header {
     text-align: center;
     font-weight: bold;
+    font-size: 1.15rem;
+    color: #314b63;
 }
 
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 14px;
+    margin-bottom: 10px;
 }
 
+/* ===== TEXT BLOCKS ===== */
 .english, .latin {
-    padding: 12px;
-    border-radius: 10px;
+    padding: 14px;
+    border-radius: 12px;
     font-weight: bold;
+    line-height: 1.45;
 }
 
+/* English */
 .english {
     background: #e8f0ff;
     border: 2px solid #b6ccff;
+    color: #1f4fbf;
+    font-size: 1.15rem;
 }
 
+/* Latin */
 .latin {
-    background: #fffdf8;
-    border: 3px solid #f0d9a8;
+    background: #f8f3ff;
+    border: 3px solid #c7b3e6;
+    color: #5b2d91;
+    font-size: 1.15rem;
     cursor: grab;
     touch-action: none;
 }
 
 .latin.correct {
-    background: #e9f8ef;
+    background: #eef9f1;
     border-color: #2e7d32;
 }
 
 /* ===== CONTROLS ===== */
 .controls button {
-    width: 44px;
-    height: 44px;
-    font-size: 1.2rem;
+    width: 46px;
+    height: 46px;
+    font-size: 1.3rem;
     font-weight: bold;
     margin-right: 6px;
 }
 
-/* ===== FULLSCREEN COMPLETION OVERLAY ===== */
+/* ===== FULLSCREEN COMPLETION ===== */
 #completionOverlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(180, 215, 255, 0.95);
+    background: rgba(185, 215, 255, 0.95);
     z-index: 9999;
-    overflow: hidden;
 }
 
 #completionContent {
@@ -139,15 +154,16 @@ h1 {
 }
 
 #completionContent h2 {
-    font-size: 4rem;
+    font-size: 4.2rem;
     color: gold;
-    text-shadow: 2px 2px 6px #335;
-    margin-bottom: 20px;
+    text-shadow: 2px 2px 6px #2f4f7f;
+    margin-bottom: 22px;
 }
 
 #completionContent p {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: bold;
+    color: #203b55;
 }
 
 /* ===== FIREWORKS ===== */
@@ -167,7 +183,7 @@ h1 {
 
 /* ===== FOOTER ===== */
 #footer {
-    margin-top: 40px;
+    margin-top: 44px;
     font-size: 0.75rem;
     color: #777;
     text-align: center;
@@ -188,9 +204,9 @@ h1 {
 
 <body>
 
-<h1 style="font-size:3rem;">Save Our Creed!</h1>
-<h1 style="font-size:1.2rem;">RELI/EURO 270: Religion in Western Europe</h1>
-<h1 style="font-size:1.2rem;">Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
+<h1 style="font-size:3.2rem;">Save Our Creed!</h1>
+<h1 style="font-size:1.25rem;">RELI/EURO 270: Religion in Western Europe</h1>
+<h1 style="font-size:1.25rem;">Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
 
 <div id="story">
 Heretics attacked us! We need your help!<br>
@@ -234,7 +250,6 @@ back in order!
     </a>
 </div>
 
-<!-- FULLSCREEN COMPLETION -->
 <div id="completionOverlay">
     <div id="completionContent">
         <h2>Done! Halleluja! Glory!</h2>
@@ -245,12 +260,7 @@ back in order!
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
-const ENGLISH = Array.from({length:29},(_,i)=>`${String(i+1).padStart(2,"0")}.`);
-const LATIN_CORRECT = [...document.querySelectorAll("script")]; // placeholder replaced below
-</script>
-
-<script>
-/* ==== LATIN TEXT ==== */
+/* ===== DATA ===== */
 const LATIN = [
 "(1) Credo in unum Deum,","Patrem omnipotentem,","(3) factorem caeli et terrae,",
 "visibilium omnium et invisibilium,","Et in unum Dominum Iesum Christum,",
@@ -277,54 +287,79 @@ const LATIN = [
 let latin = LATIN.map((t,i)=>({text:t, correct:i}));
 latin.sort(()=>Math.random()-0.5);
 
-let timerStarted=false,startTime,completed=false,audioUnlocked=false;
+let timerStarted=false, startTime, completed=false, audioUnlocked=false;
 
+/* ===== TIMER ===== */
 function startTimer(){
     if(timerStarted) return;
-    timerStarted=true; startTime=Date.now();
+    timerStarted=true;
+    startTime=Date.now();
     setInterval(()=>{
         const s=Math.floor((Date.now()-startTime)/1000);
         timer.textContent=`Time: ${Math.floor(s/60).toString().padStart(2,"0")}:${(s%60).toString().padStart(2,"0")}`;
     },1000);
 }
 
+/* ===== RENDER ===== */
 function render(){
     grid.innerHTML="";
     latin.forEach((l,i)=>{
-        const row=document.createElement("div"); row.className="row";
-        const e=document.createElement("div"); e.className="english"; e.textContent=i+1;
-        const d=document.createElement("div"); d.className="latin"+(l.correct===i?" correct":"");
+        const row=document.createElement("div");
+        row.className="row";
+
+        const e=document.createElement("div");
+        e.className="english";
+        e.textContent=i+1;
+
+        const d=document.createElement("div");
+        d.className="latin"+(l.correct===i?" correct":"");
         d.textContent=l.text;
-        const up=document.createElement("button"); up.textContent="↑"; up.onclick=()=>swap(i,i-1);
-        const down=document.createElement("button"); down.textContent="↓"; down.onclick=()=>swap(i,i+1);
-        const c=document.createElement("div"); c.className="controls"; c.append(up,down);
+
+        const up=document.createElement("button");
+        up.textContent="↑";
+        up.onclick=()=>swap(i,i-1);
+
+        const down=document.createElement("button");
+        down.textContent="↓";
+        down.onclick=()=>swap(i,i+1);
+
+        const c=document.createElement("div");
+        c.className="controls";
+        c.append(up,down);
+
         d.prepend(c);
-        row.append(e,d); grid.append(row);
+        row.append(e,d);
+        grid.append(row);
     });
 }
 
+/* ===== GAME LOGIC ===== */
 function swap(i,j){
     startTimer();
     if(j<0||j>=latin.length) return;
     [latin[i],latin[j]]=[latin[j],latin[i]];
-    render(); check();
+    render();
+    check();
 }
 
 function check(){
     const ok=latin.filter((l,i)=>l.correct===i).length;
     counter.textContent=`${ok} lines out of 29 are correct`;
-    if(ok>=12&&!audioUnlocked){
+
+    if(ok>=12 && !audioUnlocked){
         audioUnlocked=true;
         audioControls.style.display="block";
         audioStatus.textContent="🔓 Audio unlocked";
         audioBox.classList.add("unlocked");
     }
-    if(ok===29&&!completed){
+
+    if(ok===29 && !completed){
         completed=true;
         showCompletion();
     }
 }
 
+/* ===== COMPLETION ===== */
 function showCompletion(){
     completionOverlay.style.display="block";
     const s=Math.floor((Date.now()-startTime)/1000);
@@ -342,13 +377,36 @@ function spawnFirework(){
     setTimeout(()=>f.remove(),1500);
 }
 
-/* AUDIO */
+/* ===== AUDIO ===== */
 function audioPlay(){audioPlayer.play();}
 function audioPause(){audioPlayer.pause();}
 function audioBack(){audioPlayer.currentTime=Math.max(0,audioPlayer.currentTime-10);}
 function audioForward(){audioPlayer.currentTime+=10;}
 
-render(); check();
+/* ===== INSTRUCTOR OVERRIDES ===== */
+document.addEventListener("keydown",e=>{
+    if(!e.shiftKey) return;
+
+    if(e.key==="A"){          // Shift + A
+        audioUnlocked=true;
+        audioControls.style.display="block";
+        audioStatus.textContent="🔓 Audio unlocked (instructor)";
+        audioBox.classList.add("unlocked");
+    }
+
+    if(e.key==="D"){          // Shift + D
+        latin.sort((a,b)=>a.correct-b.correct);
+        render();
+        showCompletion();
+    }
+
+    if(e.key==="R"){          // Shift + R
+        location.reload();
+    }
+});
+
+render();
+check();
 </script>
 
 </body>
