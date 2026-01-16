@@ -13,12 +13,11 @@ body {
     color: #222;
 }
 
-/* ====== IMAGE ====== */
+/* ===== IMAGE ===== */
 #referenceImage {
     text-align: center;
     margin-bottom: 20px;
 }
-
 #referenceImage img {
     max-width: 100%;
     height: auto;
@@ -26,27 +25,23 @@ body {
     border: 2px solid #c0c9d6;
 }
 
-/* ====== TOP BAR ====== */
+/* ===== TOP BAR ===== */
 #topbar {
     text-align: center;
     margin-bottom: 15px;
 }
-
 #timer {
     font-size: 1.3em;
     font-weight: bold;
     color: #1a4fa3;
 }
-
 #counter {
     margin-top: 6px;
     font-size: 1.05em;
 }
-
 #mediaButtons {
     margin-top: 10px;
 }
-
 #mediaButtons button {
     margin: 0 6px;
     padding: 6px 14px;
@@ -56,44 +51,39 @@ body {
     background: #e8ecf3;
     cursor: pointer;
 }
-
 #mediaButtons button:disabled {
     background: #cccccc;
     border-color: #999;
     cursor: not-allowed;
 }
-
 #mediaHint {
     margin-top: 6px;
     font-size: 0.9em;
     color: #555;
 }
 
-/* ====== HEADERS ====== */
+/* ===== HEADERS ===== */
 h1 {
     text-align: center;
     margin: 4px 0;
     color: #1f3a5f;
 }
-
 #separator {
     text-align: center;
     font-weight: bold;
     letter-spacing: 2px;
     margin: 6px 0 14px 0;
 }
-
 #instructions {
     text-align: center;
     font-size: 1.05em;
     margin: 20px 0 25px 0;
 }
 
-/* ====== GAME ====== */
+/* ===== GAME ===== */
 #lineContainer {
     margin-top: 20px;
 }
-
 .line {
     display: flex;
     align-items: center;
@@ -105,26 +95,21 @@ h1 {
     font-size: 1.05em;
     font-weight: bold;
 }
-
 .line.fixed {
     background: #eef3f9;
     border-color: #9fb6d8;
 }
-
 .line.dragging {
     opacity: 0.4;
 }
-
 .text {
     flex-grow: 1;
     padding: 0 12px;
 }
-
 .controls {
     display: flex;
     gap: 6px;
 }
-
 button {
     font-size: 0.9em;
     cursor: pointer;
@@ -133,21 +118,17 @@ button {
     border: 1px solid #888;
     background: #e8ecf3;
 }
-
 button:hover:not(:disabled) {
     background: #dbe3ef;
 }
-
 #buttons {
     text-align: center;
     margin-top: 25px;
 }
-
 #buttons button {
     margin: 0 10px;
     font-size: 1em;
 }
-
 #result {
     margin-top: 25px;
     text-align: center;
@@ -155,13 +136,12 @@ button:hover:not(:disabled) {
     font-weight: bold;
 }
 
-/* ====== MOBILE ====== */
+/* ===== MOBILE ===== */
 @media (hover: none) and (pointer: coarse) {
     .controls {
         flex-direction: column;
         margin-right: 8px;
     }
-
     .controls button {
         font-size: 1.1em;
         padding: 10px 14px;
@@ -170,15 +150,8 @@ button:hover:not(:disabled) {
         color: white;
         border: none;
     }
-
-    .controls button:first-child {
-        background-color: #2e7d32;
-    }
-
-    .controls button:last-child {
-        background-color: #c62828;
-    }
-
+    .controls button:first-child { background-color: #2e7d32; }
+    .controls button:last-child { background-color: #c62828; }
     .controls button:active {
         transform: scale(0.95);
         opacity: 0.85;
@@ -189,16 +162,14 @@ button:hover:not(:disabled) {
 
 <body>
 
-<!-- ====== REFERENCE IMAGE ====== -->
 <div id="referenceImage">
     <img src="NCCreedEnglish29Lines.png"
-         alt="Nicene Creed in English, 29 lines, correct order">
+         alt="Nicene Creed in English, correct order">
 </div>
 
 <div id="topbar">
     <div id="timer">Time: 00:00</div>
     <div id="counter">0 lines out of 29 are in the correct place</div>
-
     <div id="mediaButtons">
         <button id="playVideoBtn" onclick="playVideo()" disabled>Play Video</button>
         <div id="mediaHint">Video unlocks after 18 lines are correct.</div>
@@ -224,7 +195,7 @@ On computers, drag the other lines. On phones, use UP and DOWN.
 
 <div id="buttons">
     <button onclick="checkOrder()">Check Order</button>
-    <button onclick="reshuffle()">Reshuffle</button>
+    <button onclick="init()">Reshuffle</button>
 </div>
 
 <div id="result"></div>
@@ -233,8 +204,146 @@ On computers, drag the other lines. On phones, use UP and DOWN.
        style="display:none; width:100%; margin-top:20px;"></video>
 
 <script>
-/* === JavaScript unchanged from previous version === */
-/* (Timer, counter, fixed lines, sticky video unlock at 18, etc.) */
+/* ===== SOURCE TEXT ===== */
+const SOURCE_TEXT = `
+(1) Credo in unum Deum,
+Patrem omnipotentem,
+(3) factorem caeli et terrae,
+visibilium omnium et invisibilium,
+(5) Et in unum Dominum Iesum Christum,
+Filium Dei unigenitum,
+et ex Patre natum, ante omnia saecula,
+(8) Deum de Deo, lumen de Lumine,
+Deum verum de Deo vero,
+genitum, non factum, consubstantialem Patri:
+(11) per quem omnia facta sunt.
+Qui propter nos homines et propter nostram salutem descendit de caelis.
+(13) Et incarnatus est de Spiritu Sancto
+ex Maria Virgine, et homo factus est.
+Crucifixus etiam pro nobis sub Pontio Pilato;
+passus et sepultus est,
+(17) et resurrexit tertia die, secundum Scripturas,
+et ascendit in caelum, sedet ad dexteram Patris.
+(19) Et iterum venturus est cum gloria,
+iudicare vivos et mortuos,
+cuius regni non erit finis.
+(22) Et in Spiritum Sanctum, Dominum et vivificantem:
+qui ex Patre Filioque procedit.
+(23) Qui cum Patre et Filio simul adoratur et conglorificatur:
+qui locutus est per prophetas.
+(26) Et unam, sanctam, catholicam et apostolicam Ecclesiam.
+Confiteor unum baptisma in remissionem peccatorum.
+Et exspecto resurrectionem mortuorum,
+(29) et vitam venturi saeculi. Amen.
+`.trim().split("\n");
+
+/* ===== UTIL ===== */
+const COLORS = ["#1b5e9a","#7b1fa2","#c62828","#2e7d32","#ef6c00"];
+function hash(str){let h=0;for(let c of str){h=(h<<5)-h+c.charCodeAt(0);h|=0;}return h;}
+const solutionHash = hash(SOURCE_TEXT.join("||"));
+
+let lines=[], videoUnlocked=false;
+let startTime, timerInt;
+
+/* ===== TIMER ===== */
+function startTimer(){
+    startTime=Date.now();
+    clearInterval(timerInt);
+    timerInt=setInterval(()=>{
+        const t=Math.floor((Date.now()-startTime)/1000);
+        document.getElementById("timer").textContent=
+            `Time: ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
+    },500);
+}
+
+/* ===== INIT ===== */
+function init(){
+    const fixed=[], movable=[];
+    SOURCE_TEXT.forEach((t,i)=>{
+        const o={text:t,index:i,fixed:/^\(\d+\)/.test(t),color:COLORS[i%COLORS.length]};
+        o.fixed?fixed.push(o):movable.push(o);
+    });
+    movable.sort(()=>Math.random()-0.5);
+    lines=SOURCE_TEXT.map((_,i)=>fixed.find(f=>f.index===i)||movable.shift());
+    render();
+    updateCounter();
+    startTimer();
+}
+
+/* ===== RENDER ===== */
+function render(){
+    const c=document.getElementById("lineContainer");
+    c.innerHTML="";
+    lines.forEach((l,i)=>{
+        const d=document.createElement("div");
+        d.className="line"+(l.fixed?" fixed":"");
+        d.draggable=!l.fixed;
+        if(!l.fixed){
+            d.ondragstart=e=>{d.classList.add("dragging");d.dataset.i=i;};
+            d.ondragend=e=>d.classList.remove("dragging");
+            d.ondragover=e=>e.preventDefault();
+            d.ondrop=e=>{
+                const from=+document.querySelector(".dragging").dataset.i;
+                const item=lines.splice(from,1)[0];
+                lines.splice(i,0,item);
+                render();updateCounter();
+            };
+        }
+        const ctr=document.createElement("div");
+        ctr.className="controls";
+        if(!l.fixed){
+            ["↑ UP","↓ DOWN"].forEach((t,dir)=>{
+                const b=document.createElement("button");
+                b.textContent=t;
+                b.onclick=()=>{
+                    const j=i+(dir?1:-1);
+                    if(lines[j] && !lines[j].fixed){
+                        [lines[i],lines[j]]=[lines[j],lines[i]];
+                        render();updateCounter();
+                    }
+                };
+                ctr.appendChild(b);
+            });
+        }
+        const txt=document.createElement("div");
+        txt.className="text";
+        txt.textContent=l.text;
+        txt.style.color=l.color;
+        d.appendChild(ctr);d.appendChild(txt);
+        c.appendChild(d);
+    });
+}
+
+/* ===== COUNTER ===== */
+function updateCounter(){
+    let correct=0;
+    lines.forEach((l,i)=>{if(l.text===SOURCE_TEXT[i]) correct++;});
+    document.getElementById("counter").textContent=
+        `${correct} lines out of ${SOURCE_TEXT.length} are in the correct place`;
+    if(!videoUnlocked && correct>=18){
+        videoUnlocked=true;
+        document.getElementById("playVideoBtn").disabled=false;
+        document.getElementById("mediaHint").textContent="Video unlocked.";
+    }
+}
+
+/* ===== CHECK ===== */
+function checkOrder(){
+    const h=hash(lines.map(l=>l.text).join("||"));
+    const r=document.getElementById("result");
+    r.textContent=h===solutionHash?"Correct ✔":"Not correct yet ✘";
+    r.style.color=h===solutionHash?"green":"#b71c1c";
+}
+
+/* ===== VIDEO ===== */
+function playVideo(){
+    if(!videoUnlocked) return;
+    const v=document.getElementById("videoPlayer");
+    v.style.display="block";
+    v.play();
+}
+
+init();
 </script>
 
 </body>
