@@ -13,12 +13,46 @@ body {
     color: #222;
 }
 
-#timer {
+#topbar {
     text-align: center;
+    margin-bottom: 15px;
+}
+
+#timer {
     font-size: 1.3em;
     font-weight: bold;
-    margin-bottom: 15px;
     color: #1a4fa3;
+}
+
+#counter {
+    margin-top: 6px;
+    font-size: 1.05em;
+}
+
+#mediaButtons {
+    margin-top: 10px;
+}
+
+#mediaButtons button {
+    margin: 0 6px;
+    padding: 6px 14px;
+    font-size: 0.95em;
+    border-radius: 6px;
+    border: 1px solid #777;
+    background: #e8ecf3;
+    cursor: pointer;
+}
+
+#mediaButtons button:disabled {
+    background: #cccccc;
+    border-color: #999;
+    cursor: not-allowed;
+}
+
+#mediaHint {
+    margin-top: 6px;
+    font-size: 0.9em;
+    color: #555;
 }
 
 h1 {
@@ -77,7 +111,7 @@ button {
     background: #e8ecf3;
 }
 
-button:hover {
+button:hover:not(:disabled) {
     background: #dbe3ef;
 }
 
@@ -98,7 +132,7 @@ button:hover {
     font-weight: bold;
 }
 
-/* ====== MOBILE FRIENDLY CONTROLS ====== */
+/* ====== MOBILE ====== */
 @media (hover: none) and (pointer: coarse) {
 
     .controls {
@@ -133,7 +167,15 @@ button:hover {
 
 <body>
 
-<div id="timer">Time: 00:00</div>
+<div id="topbar">
+    <div id="timer">Time: 00:00</div>
+    <div id="counter">0 lines out of 29 are in the correct place</div>
+
+    <div id="mediaButtons">
+        <button id="playVideoBtn" onclick="playVideo()" disabled>Play Video</button>
+        <div id="mediaHint">Video unlocks after more than 20 lines are correct.</div>
+    </div>
+</div>
 
 <h1>RELI/EURO 270</h1>
 <h1>--[Marienberg]--</h1>
@@ -156,8 +198,12 @@ On computers, drag the other lines. On phones, use UP and DOWN.
 
 <div id="result"></div>
 
+<!-- VIDEO PLAYER -->
+<video id="videoPlayer" src="NCCreed.mp4" controls
+       style="display:none; width:100%; margin-top:20px;"></video>
+
 <script>
-/* ====== SOURCE TEXT (CORRECT ORDER) ====== */
+/* ====== SOURCE TEXT ====== */
 const SOURCE_TEXT = `
 (1) Credo in unum Deum,
 Patrem omnipotentem,
@@ -190,14 +236,14 @@ Et exspecto resurrectionem mortuorum,
 (29) et vitam venturi saeculi. Amen.
 `.trim().split("\n");
 
-/* ====== COLOR PALETTE ====== */
+/* ====== COLORS ====== */
 const COLORS = [
     "#1b5e9a", "#7b1fa2", "#c62828", "#2e7d32",
     "#ef6c00", "#1565c0", "#6d4c41", "#00838f",
     "#ad1457", "#283593"
 ];
 
-/* ====== HASHING ====== */
+/* ====== HASH ====== */
 function hash(str) {
     let h = 0;
     for (let i = 0; i < str.length; i++) {
@@ -220,10 +266,9 @@ function startTimer() {
 
 function updateTimer() {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
-    const seconds = String(elapsed % 60).padStart(2, "0");
-    document.getElementById("timer").textContent =
-        `Time: ${minutes}:${seconds}`;
+    const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+    const s = String(elapsed % 60).padStart(2, "0");
+    document.getElementById("timer").textContent = `Time: ${m}:${s}`;
 }
 
 function stopTimer() {
@@ -244,8 +289,7 @@ function init() {
             fixed: /^\(\d+\)/.test(text),
             color: COLORS[Math.floor(Math.random() * COLORS.length)]
         };
-        if (item.fixed) fixed.push(item);
-        else movable.push(item);
+        item.fixed ? fixed.push(item) : movable.push(item);
     });
 
     movable.sort(() => Math.random() - 0.5);
@@ -255,8 +299,8 @@ function init() {
     );
 
     render();
+    updateCounter();
     document.getElementById("result").textContent = "";
-    document.getElementById("result").style.color = "";
     startTimer();
 }
 
@@ -320,6 +364,7 @@ function swap(i, j) {
     if (lines[i].fixed || lines[j].fixed) return;
     [lines[i], lines[j]] = [lines[j], lines[i]];
     render();
+    updateCounter();
 }
 
 function move(from, to) {
@@ -327,6 +372,28 @@ function move(from, to) {
     const item = lines.splice(from, 1)[0];
     lines.splice(to, 0, item);
     render();
+    updateCounter();
+}
+
+function updateCounter() {
+    let correct = 0;
+    lines.forEach((line, i) => {
+        if (line.text === SOURCE_TEXT[i]) correct++;
+    });
+
+    document.getElementById("counter").textContent =
+        `${correct} lines out of ${SOURCE_TEXT.length} are in the correct place`;
+
+    const playBtn = document.getElementById("playVideoBtn");
+    if (correct >= 21) {
+        playBtn.disabled = false;
+        document.getElementById("mediaHint").textContent =
+            "Video unlocked.";
+    } else {
+        playBtn.disabled = true;
+        document.getElementById("mediaHint").textContent =
+            "Video unlocks after more than 20 lines are correct.";
+    }
 }
 
 function checkOrder() {
@@ -341,6 +408,14 @@ function checkOrder() {
         result.textContent = "Not correct yet ✘";
         result.style.color = "#b71c1c";
     }
+}
+
+/* ====== VIDEO ====== */
+function playVideo() {
+    const v = document.getElementById("videoPlayer");
+    if (document.getElementById("playVideoBtn").disabled) return;
+    v.style.display = "block";
+    v.play();
 }
 
 function reshuffle() {
