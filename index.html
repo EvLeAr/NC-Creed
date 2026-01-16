@@ -19,14 +19,35 @@ h1 {
 #story {
     text-align: center;
     font-weight: bold;
-    margin: 20px 0 30px;
+    margin: 20px 0 20px;
     line-height: 1.6;
 }
 
 #status {
     text-align: center;
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+/* audio */
+#audioBox {
+    margin: 20px 0 25px;
+    padding: 15px;
+    border: 2px dashed #aaa;
+    text-align: center;
+}
+#audioBox.unlocked {
+    border-color: #2e7d32;
+    background: #f1faf3;
+}
+#audioHelp {
+    margin-bottom: 10px;
+    font-style: italic;
+}
+#audioControls button {
+    margin: 4px;
+    padding: 6px 12px;
+    font-weight: bold;
 }
 
 /* headers */
@@ -63,6 +84,11 @@ h1 {
 .latin {
     background: #ffffff;
     border: 2px solid #d0d7e2;
+    cursor: grab;
+}
+
+.latin.dragging {
+    opacity: 0.5;
 }
 
 .latin.correct {
@@ -75,23 +101,6 @@ h1 {
 }
 .controls button {
     margin-right: 4px;
-    font-weight: bold;
-}
-
-/* audio */
-#audioBox {
-    margin-top: 30px;
-    padding: 15px;
-    border: 2px dashed #aaa;
-    text-align: center;
-}
-#audioBox.unlocked {
-    border-color: #2e7d32;
-    background: #f1faf3;
-}
-#audioControls button {
-    margin: 4px;
-    padding: 6px 12px;
     font-weight: bold;
 }
 </style>
@@ -115,16 +124,13 @@ back in order!
 <div id="counter">0 lines out of 29 are correct</div>
 </div>
 
-<div id="headers">
-    <div class="header">English (fixed)</div>
-    <div class="header">Latin (reorder)</div>
-</div>
-
-<div id="grid"></div>
-
 <!-- AUDIO -->
 <div id="audioBox">
-    <div id="audioStatus">🔒 Audio locked (unlocks at 12 correct lines)</div>
+    <div id="audioHelp">
+        This audio of the chanting of the Latin version can help,
+        but it will open only after you placed 12 lines in the correct place.
+    </div>
+    <div id="audioStatus">🔒 Audio locked</div>
     <div id="audioControls" style="display:none;">
         <button onclick="audioBack()">⏪ 10s</button>
         <button onclick="audioPlay()">▶ Play</button>
@@ -133,10 +139,16 @@ back in order!
     </div>
 </div>
 
+<div id="headers">
+    <div class="header">English (fixed)</div>
+    <div class="header">Latin (reorder)</div>
+</div>
+
+<div id="grid"></div>
+
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
-/* ===== DATA ===== */
 const ENGLISH = [
 "01. I believe in one God,",
 "02. the Father almighty,",
@@ -169,12 +181,13 @@ const ENGLISH = [
 "29. and the life of the world to come. Amen."
 ];
 
+/* Latin: 5, 13, 19, 24 intentionally UNNUMBERED */
 const LATIN_CORRECT = [
 "(1) Credo in unum Deum,",
 "Patrem omnipotentem,",
 "(3) factorem caeli et terrae,",
 "visibilium omnium et invisibilium,",
-"(5) Et in unum Dominum Iesum Christum,",
+"Et in unum Dominum Iesum Christum,",                 // 5
 "Filium Dei unigenitum,",
 "et ex Patre natum, ante omnia saecula,",
 "(8) Deum de Deo, lumen de Lumine,",
@@ -182,18 +195,18 @@ const LATIN_CORRECT = [
 "genitum, non factum, consubstantialem Patri:",
 "(11) per quem omnia facta sunt.",
 "Qui propter nos homines et propter nostram salutem descendit de caelis.",
-"(13) Et incarnatus est de Spiritu Sancto",
+"Et incarnatus est de Spiritu Sancto",                // 13
 "ex Maria Virgine, et homo factus est.",
 "Crucifixus etiam pro nobis sub Pontio Pilato;",
 "passus et sepultus est,",
 "(17) et resurrexit tertia die, secundum Scripturas,",
 "et ascendit in caelum, sedet ad dexteram Patris.",
-"(19) Et iterum venturus est cum gloria,",
+"Et iterum venturus est cum gloria,",                 // 19
 "iudicare vivos et mortuos,",
 "cuius regni non erit finis.",
 "(22) Et in Spiritum Sanctum, Dominum et vivificantem:",
 "qui ex Patre Filioque procedit.",
-"(24) Qui cum Patre et Filio simul adoratur et conglorificatur:",
+"Qui cum Patre et Filio simul adoratur et conglorificatur:", // 24
 "qui locutus est per prophetas.",
 "(26) Et unam, sanctam, catholicam et apostolicam Ecclesiam.",
 "Confiteor unum baptisma in remissionem peccatorum.",
@@ -203,38 +216,39 @@ const LATIN_CORRECT = [
 
 let latin = [];
 let timerStarted = false;
-let timerInterval;
 let startTime;
 let audioUnlocked = false;
+let dragIndex = null;
 
-/* ===== TIMER ===== */
 function startTimerOnce() {
     if (timerStarted) return;
     timerStarted = true;
     startTime = Date.now();
-    timerInterval = setInterval(() => {
+    setInterval(() => {
         const t = Math.floor((Date.now() - startTime) / 1000);
         document.getElementById("timer").textContent =
             `Time: ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
     }, 1000);
 }
 
-/* ===== INIT ===== */
 function init() {
     latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
 
+    const fixed = latin.filter(l => /^\(\d+\)/.test(l.text));
     const movable = latin.filter(l => !/^\(\d+\)/.test(l.text));
+
     movable.sort(() => Math.random() - 0.5);
 
-    latin = latin.map(l =>
-        /^\(\d+\)/.test(l.text) ? l : movable.shift()
+    latin = LATIN_CORRECT.map(t =>
+        /^\(\d+\)/.test(t)
+            ? fixed.shift()
+            : movable.shift()
     );
 
     render();
     updateCounter();
 }
 
-/* ===== RENDER ===== */
 function render() {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
@@ -250,6 +264,11 @@ function render() {
         const l = document.createElement("div");
         l.className = "latin" + (latin[i].correct === i ? " correct" : "");
         l.textContent = latin[i].text;
+        l.draggable = true;
+
+        l.ondragstart = () => { dragIndex = i; startTimerOnce(); };
+        l.ondragover = e => e.preventDefault();
+        l.ondrop = () => swap(dragIndex, i);
 
         const ctr = document.createElement("div");
         ctr.className = "controls";
@@ -272,7 +291,6 @@ function render() {
     });
 }
 
-/* ===== LOGIC ===== */
 function swap(i,j){
     startTimerOnce();
     if(j<0||j>=latin.length) return;
@@ -294,7 +312,6 @@ function updateCounter(){
     }
 }
 
-/* ===== AUDIO ===== */
 function audioPlay(){ audioPlayer.play(); }
 function audioPause(){ audioPlayer.pause(); }
 function audioBack(){ audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10); }
