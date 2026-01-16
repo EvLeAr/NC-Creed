@@ -121,7 +121,7 @@ h1 {
     margin-right: 6px;
 }
 
-/* ===== FULLSCREEN COMPLETION ===== */
+/* ===== FULLSCREEN COMPLETION OVERLAY ===== */
 #completionOverlay {
     display: none;
     position: fixed;
@@ -245,7 +245,12 @@ back in order!
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
-/* ===== DATA ===== */
+const ENGLISH = Array.from({length:29},(_,i)=>`${String(i+1).padStart(2,"0")}.`);
+const LATIN_CORRECT = [...document.querySelectorAll("script")]; // placeholder replaced below
+</script>
+
+<script>
+/* ==== LATIN TEXT ==== */
 const LATIN = [
 "(1) Credo in unum Deum,","Patrem omnipotentem,","(3) factorem caeli et terrae,",
 "visibilium omnium et invisibilium,","Et in unum Dominum Iesum Christum,",
@@ -272,79 +277,54 @@ const LATIN = [
 let latin = LATIN.map((t,i)=>({text:t, correct:i}));
 latin.sort(()=>Math.random()-0.5);
 
-let timerStarted=false, startTime, completed=false, audioUnlocked=false;
+let timerStarted=false,startTime,completed=false,audioUnlocked=false;
 
-/* ===== TIMER ===== */
 function startTimer(){
     if(timerStarted) return;
-    timerStarted=true;
-    startTime=Date.now();
+    timerStarted=true; startTime=Date.now();
     setInterval(()=>{
         const s=Math.floor((Date.now()-startTime)/1000);
         timer.textContent=`Time: ${Math.floor(s/60).toString().padStart(2,"0")}:${(s%60).toString().padStart(2,"0")}`;
     },1000);
 }
 
-/* ===== RENDER ===== */
 function render(){
     grid.innerHTML="";
     latin.forEach((l,i)=>{
-        const row=document.createElement("div");
-        row.className="row";
-
-        const e=document.createElement("div");
-        e.className="english";
-        e.textContent=i+1;
-
-        const d=document.createElement("div");
-        d.className="latin"+(l.correct===i?" correct":"");
+        const row=document.createElement("div"); row.className="row";
+        const e=document.createElement("div"); e.className="english"; e.textContent=i+1;
+        const d=document.createElement("div"); d.className="latin"+(l.correct===i?" correct":"");
         d.textContent=l.text;
-
-        const up=document.createElement("button");
-        up.textContent="↑";
-        up.onclick=()=>swap(i,i-1);
-
-        const down=document.createElement("button");
-        down.textContent="↓";
-        down.onclick=()=>swap(i,i+1);
-
-        const c=document.createElement("div");
-        c.className="controls";
-        c.append(up,down);
-
+        const up=document.createElement("button"); up.textContent="↑"; up.onclick=()=>swap(i,i-1);
+        const down=document.createElement("button"); down.textContent="↓"; down.onclick=()=>swap(i,i+1);
+        const c=document.createElement("div"); c.className="controls"; c.append(up,down);
         d.prepend(c);
-        row.append(e,d);
-        grid.append(row);
+        row.append(e,d); grid.append(row);
     });
 }
 
-/* ===== GAME LOGIC ===== */
 function swap(i,j){
     startTimer();
     if(j<0||j>=latin.length) return;
     [latin[i],latin[j]]=[latin[j],latin[i]];
-    render();
-    check();
+    render(); check();
 }
 
 function check(){
     const ok=latin.filter((l,i)=>l.correct===i).length;
     counter.textContent=`${ok} lines out of 29 are correct`;
-
-    if(ok>=12 && !audioUnlocked){
+    if(ok>=12&&!audioUnlocked){
         audioUnlocked=true;
         audioControls.style.display="block";
         audioStatus.textContent="🔓 Audio unlocked";
         audioBox.classList.add("unlocked");
     }
-
-    if(ok===29 && !completed){
+    if(ok===29&&!completed){
         completed=true;
         showCompletion();
     }
 }
 
-/* ===== COMPLETION ===== */
 function showCompletion(){
     completionOverlay.style.display="block";
     const s=Math.floor((Date.now()-startTime)/1000);
@@ -362,36 +342,13 @@ function spawnFirework(){
     setTimeout(()=>f.remove(),1500);
 }
 
-/* ===== AUDIO ===== */
+/* AUDIO */
 function audioPlay(){audioPlayer.play();}
 function audioPause(){audioPlayer.pause();}
 function audioBack(){audioPlayer.currentTime=Math.max(0,audioPlayer.currentTime-10);}
 function audioForward(){audioPlayer.currentTime+=10;}
 
-/* ===== INSTRUCTOR OVERRIDES ===== */
-document.addEventListener("keydown",e=>{
-    if(!e.shiftKey) return;
-
-    if(e.key==="A"){          // Shift + A → unlock audio
-        audioUnlocked=true;
-        audioControls.style.display="block";
-        audioStatus.textContent="🔓 Audio unlocked (instructor)";
-        audioBox.classList.add("unlocked");
-    }
-
-    if(e.key==="D"){          // Shift + D → finish game
-        latin.sort((a,b)=>a.correct-b.correct);
-        render();
-        showCompletion();
-    }
-
-    if(e.key==="R"){          // Shift + R → reset immediately
-        location.reload();
-    }
-});
-
-render();
-check();
+render(); check();
 </script>
 
 </body>
