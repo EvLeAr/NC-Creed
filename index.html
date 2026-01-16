@@ -163,8 +163,7 @@ button:hover:not(:disabled) {
 <body>
 
 <div id="referenceImage">
-    <img src="NCCreedEnglish29Lines.png"
-         alt="Nicene Creed in English, correct order">
+    <img src="NCCreedEnglish29Lines.png" alt="Nicene Creed in English">
 </div>
 
 <div id="topbar">
@@ -204,7 +203,6 @@ On computers, drag the other lines. On phones, use UP and DOWN.
        style="display:none; width:100%; margin-top:20px;"></video>
 
 <script>
-/* ===== SOURCE TEXT ===== */
 const SOURCE_TEXT = `
 (1) Credo in unum Deum,
 Patrem omnipotentem,
@@ -237,24 +235,8 @@ Et exspecto resurrectionem mortuorum,
 (29) et vitam venturi saeculi. Amen.
 `.trim().split("\n");
 
-/* ===== UTIL ===== */
 const COLORS = ["#1b5e9a","#7b1fa2","#c62828","#2e7d32","#ef6c00"];
-function hash(str){let h=0;for(let c of str){h=(h<<5)-h+c.charCodeAt(0);h|=0;}return h;}
-const solutionHash = hash(SOURCE_TEXT.join("||"));
-
 let lines=[], videoUnlocked=false;
-let startTime, timerInt;
-
-/* ===== TIMER ===== */
-function startTimer(){
-    startTime=Date.now();
-    clearInterval(timerInt);
-    timerInt=setInterval(()=>{
-        const t=Math.floor((Date.now()-startTime)/1000);
-        document.getElementById("timer").textContent=
-            `Time: ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
-    },500);
-}
 
 /* ===== INIT ===== */
 function init(){
@@ -267,10 +249,9 @@ function init(){
     lines=SOURCE_TEXT.map((_,i)=>fixed.find(f=>f.index===i)||movable.shift());
     render();
     updateCounter();
-    startTimer();
 }
 
-/* ===== RENDER ===== */
+/* ===== RENDER (FIXED DROP LOGIC) ===== */
 function render(){
     const c=document.getElementById("lineContainer");
     c.innerHTML="";
@@ -278,47 +259,70 @@ function render(){
         const d=document.createElement("div");
         d.className="line"+(l.fixed?" fixed":"");
         d.draggable=!l.fixed;
+
         if(!l.fixed){
-            d.ondragstart=e=>{d.classList.add("dragging");d.dataset.i=i;};
-            d.ondragend=e=>d.classList.remove("dragging");
-            d.ondragover=e=>e.preventDefault();
-            d.ondrop=e=>{
-                const from=+document.querySelector(".dragging").dataset.i;
-                const item=lines.splice(from,1)[0];
-                lines.splice(i,0,item);
-                render();updateCounter();
-            };
+            d.ondragstart=()=>{d.classList.add("dragging");d.dataset.i=i;};
+            d.ondragend=()=>d.classList.remove("dragging");
         }
+
+        d.ondragover=e=>e.preventDefault();
+        d.ondrop=e=>{
+            const from=+document.querySelector(".dragging")?.dataset.i;
+            if(from==null) return;
+
+            let target=i;
+            if(lines[target].fixed){
+                target = findNearestMovableIndex(target);
+            }
+
+            const item=lines.splice(from,1)[0];
+            lines.splice(target,0,item);
+            render(); updateCounter();
+        };
+
         const ctr=document.createElement("div");
         ctr.className="controls";
         if(!l.fixed){
-            ["↑ UP","↓ DOWN"].forEach((t,dir)=>{
-                const b=document.createElement("button");
-                b.textContent=t;
-                b.onclick=()=>{
-                    const j=i+(dir?1:-1);
-                    if(lines[j] && !lines[j].fixed){
-                        [lines[i],lines[j]]=[lines[j],lines[i]];
-                        render();updateCounter();
-                    }
-                };
-                ctr.appendChild(b);
-            });
+            const up=document.createElement("button");
+            up.textContent="↑ UP";
+            up.onclick=()=>move(i,-1);
+            const down=document.createElement("button");
+            down.textContent="↓ DOWN";
+            down.onclick=()=>move(i,1);
+            ctr.appendChild(up); ctr.appendChild(down);
         }
+
         const txt=document.createElement("div");
         txt.className="text";
         txt.textContent=l.text;
         txt.style.color=l.color;
-        d.appendChild(ctr);d.appendChild(txt);
+
+        d.appendChild(ctr); d.appendChild(txt);
         c.appendChild(d);
     });
 }
 
-/* ===== COUNTER ===== */
+/* ===== HELPERS ===== */
+function findNearestMovableIndex(i){
+    for(let d=1; d<lines.length; d++){
+        if(lines[i-d] && !lines[i-d].fixed) return i-d;
+        if(lines[i+d] && !lines[i+d].fixed) return i+d;
+    }
+    return i;
+}
+
+function move(i,delta){
+    const j=i+delta;
+    if(lines[j] && !lines[j].fixed){
+        [lines[i],lines[j]]=[lines[j],lines[i]];
+        render(); updateCounter();
+    }
+}
+
 function updateCounter(){
     let correct=0;
     lines.forEach((l,i)=>{if(l.text===SOURCE_TEXT[i]) correct++;});
-    document.getElementById("counter").textContent=
+    document.getElementById("counter").textContent =
         `${correct} lines out of ${SOURCE_TEXT.length} are in the correct place`;
     if(!videoUnlocked && correct>=18){
         videoUnlocked=true;
@@ -327,15 +331,13 @@ function updateCounter(){
     }
 }
 
-/* ===== CHECK ===== */
 function checkOrder(){
-    const h=hash(lines.map(l=>l.text).join("||"));
+    const ok = lines.every((l,i)=>l.text===SOURCE_TEXT[i]);
     const r=document.getElementById("result");
-    r.textContent=h===solutionHash?"Correct ✔":"Not correct yet ✘";
-    r.style.color=h===solutionHash?"green":"#b71c1c";
+    r.textContent=ok?"Correct ✔":"Not correct yet ✘";
+    r.style.color=ok?"green":"#b71c1c";
 }
 
-/* ===== VIDEO ===== */
 function playVideo(){
     if(!videoUnlocked) return;
     const v=document.getElementById("videoPlayer");
@@ -348,3 +350,4 @@ init();
 
 </body>
 </html>
+
