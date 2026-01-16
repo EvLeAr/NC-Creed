@@ -11,19 +11,16 @@ body {
     max-width: 1100px;
     margin: 30px auto;
     color: #222;
-
     background-image: url("creation.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    background-repeat: no-repeat;
 }
-
 body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(240, 244, 248, 0.88);
+    background: rgba(240,244,248,0.9);
     z-index: -1;
 }
 
@@ -32,18 +29,11 @@ body::before {
     text-align: center;
     margin-bottom: 20px;
 }
-
-#counter {
-    font-size: 1.1em;
+#timer {
     font-weight: bold;
 }
-
-#mediaButtons {
-    margin-top: 10px;
-}
-
-#mediaButtons button {
-    padding: 8px 16px;
+#counter {
+    margin-top: 6px;
     font-weight: bold;
 }
 
@@ -53,7 +43,6 @@ h1 {
     margin: 4px 0;
     color: #1f3a5f;
 }
-
 #separator {
     text-align: center;
     font-weight: bold;
@@ -66,60 +55,63 @@ h1 {
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
-
 .columnTitle {
-    font-weight: bold;
     text-align: center;
+    font-weight: bold;
 }
 
+/* ===== CELLS ===== */
 .english, .latin {
     padding: 10px;
     border-radius: 8px;
     font-weight: bold;
 }
-
 .english {
     background: #eef3f9;
     border: 1px solid #b6c7df;
 }
-
 .latin {
     background: #ffffff;
     border: 2px solid #d0d7e2;
 }
-
 .latin.fixed {
-    background: #f1f1f1;
+    background: #f0f0f0;
     border-color: #999;
 }
+.latin.correct {
+    background: #e6f4ea;
+    border-color: #2e7d32;
+}
 
+/* ===== CONTROLS ===== */
 .controls {
     margin-bottom: 6px;
 }
-
 .controls button {
     margin-right: 4px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* ===== AUDIO CONTROLS ===== */
+/* ===== AUDIO ===== */
 #audioControls {
+    display: none;
     margin-top: 25px;
     text-align: center;
-    display: none;
 }
-
 #audioControls button {
-    font-size: 1em;
-    padding: 8px 14px;
     margin: 4px;
-    border-radius: 8px;
-    border: 1px solid #444;
-    background: #f5f5f5;
-    cursor: pointer;
+    padding: 8px 14px;
     font-weight: bold;
 }
 
-/* ===== HALLELUJAH OVERLAY ===== */
+/* ===== BUTTONS ===== */
+#resetBtn {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+/* ===== HALLELUJAH ===== */
 #hallelujah {
     position: fixed;
     inset: 0;
@@ -132,12 +124,6 @@ h1 {
     justify-content: center;
     text-align: center;
     z-index: 9999;
-    animation: popIn 0.3s ease-out;
-}
-
-@keyframes popIn {
-    from { transform: scale(0.7); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
 }
 </style>
 </head>
@@ -145,11 +131,11 @@ h1 {
 <body>
 
 <div id="topbar">
+    <div id="timer">Time: 00:00</div>
     <div id="counter">0 lines out of 29 are correct</div>
-    <div id="mediaButtons">
-        <button id="playVideoBtn" onclick="unlockAudio()" disabled>Play Audio</button>
-        <div id="mediaHint">Audio unlocks after 18 correct.</div>
-    </div>
+    <button id="unlockAudioBtn" onclick="unlockAudio()" disabled>Play Audio</button>
+    <br>
+    <button id="resetBtn" onclick="resetGame()">Reset / Reshuffle</button>
 </div>
 
 <h1>Save Our Creed!</h1>
@@ -175,7 +161,7 @@ h1 {
 <div id="hallelujah">Done,<br>“Hallelujah”!</div>
 
 <script>
-/* ===== ENGLISH ===== */
+/* ===== DATA ===== */
 const ENGLISH = [
 "01. I believe in one God,",
 "02. the Father almighty,",
@@ -208,8 +194,7 @@ const ENGLISH = [
 "29. and the life of the world to come. Amen."
 ];
 
-/* ===== LATIN ===== */
-const LATIN_SOURCE = [
+const LATIN_CORRECT = [
 "(1) Credo in unum Deum,",
 "Patrem omnipotentem,",
 "(3) factorem caeli et terrae,",
@@ -244,13 +229,38 @@ const LATIN_SOURCE = [
 let latin = [];
 let audioUnlocked = false;
 
+/* ===== TIMER ===== */
+let timerInterval;
+function startTimer() {
+    clearInterval(timerInterval);
+    const start = Date.now();
+    timerInterval = setInterval(() => {
+        const t = Math.floor((Date.now() - start) / 1000);
+        const m = String(Math.floor(t / 60)).padStart(2,"0");
+        const s = String(t % 60).padStart(2,"0");
+        document.getElementById("timer").textContent = `Time: ${m}:${s}`;
+    }, 1000);
+}
+
 /* ===== INIT ===== */
-function init() {
-    latin = LATIN_SOURCE
-        .map(t => ({ text: t, fixed: /^\(\d+\)/.test(t) }))
-        .sort(() => Math.random() - 0.5);
+function init(shuffle=true) {
+    const fixed = [];
+    const movable = [];
+
+    LATIN_CORRECT.forEach((t, i) => {
+        const obj = { text: t, fixed: /^\(\d+\)/.test(t), index: i };
+        obj.fixed ? fixed.push(obj) : movable.push(obj);
+    });
+
+    if (shuffle) movable.sort(() => Math.random() - 0.5);
+
+    latin = LATIN_CORRECT.map((_, i) =>
+        fixed.find(f => f.index === i) || movable.shift()
+    );
+
     render();
     updateCounter();
+    startTimer();
 }
 
 /* ===== RENDER ===== */
@@ -267,7 +277,13 @@ function render() {
         e.textContent = eng;
 
         const l = document.createElement("div");
-        l.className = "latin" + (latin[i].fixed ? " fixed" : "");
+        l.className = "latin";
+        l.draggable = !latin[i].fixed;
+        l.dataset.index = i;
+
+        if (latin[i].fixed) l.classList.add("fixed");
+        if (latin[i].text === LATIN_CORRECT[i]) l.classList.add("correct");
+
         l.textContent = latin[i].text;
 
         if (!latin[i].fixed) {
@@ -276,15 +292,24 @@ function render() {
 
             const up = document.createElement("button");
             up.textContent = "↑";
-            up.onclick = () => swap(i, i - 1);
+            up.onclick = () => move(i, -1);
 
             const down = document.createElement("button");
             down.textContent = "↓";
-            down.onclick = () => swap(i, i + 1);
+            down.onclick = () => move(i, 1);
 
             ctr.appendChild(up);
             ctr.appendChild(down);
             l.prepend(ctr);
+
+            // Drag
+            l.ondragstart = e => e.dataTransfer.setData("text/plain", i);
+            l.ondragover = e => e.preventDefault();
+            l.ondrop = e => {
+                e.preventDefault();
+                const from = +e.dataTransfer.getData("text/plain");
+                moveTo(from, i);
+            };
         }
 
         grid.appendChild(e);
@@ -292,19 +317,29 @@ function render() {
     });
 }
 
-/* ===== LOGIC ===== */
-function swap(i, j) {
+/* ===== MOVEMENT ===== */
+function move(i, delta) {
+    const j = i + delta;
     if (j < 0 || j >= latin.length) return;
-    if (latin[i].fixed || latin[j].fixed) return;
+    if (latin[j].fixed) return;
     [latin[i], latin[j]] = [latin[j], latin[i]];
     render();
     updateCounter();
 }
 
+function moveTo(from, to) {
+    if (latin[to].fixed) return;
+    const item = latin.splice(from, 1)[0];
+    latin.splice(to, 0, item);
+    render();
+    updateCounter();
+}
+
+/* ===== COUNTER ===== */
 function updateCounter() {
     let correct = 0;
     latin.forEach((l, i) => {
-        if (l.text === LATIN_SOURCE[i]) correct++;
+        if (l.text === LATIN_CORRECT[i]) correct++;
     });
 
     document.getElementById("counter").textContent =
@@ -312,13 +347,17 @@ function updateCounter() {
 
     if (!audioUnlocked && correct >= 18) {
         audioUnlocked = true;
-        document.getElementById("playVideoBtn").disabled = false;
-        document.getElementById("mediaHint").textContent = "Audio unlocked.";
+        document.getElementById("unlockAudioBtn").disabled = false;
     }
 
     if (correct === 29) {
         document.getElementById("hallelujah").style.display = "flex";
     }
+}
+
+/* ===== RESET ===== */
+function resetGame() {
+    init(true);
 }
 
 /* ===== AUDIO ===== */
@@ -327,31 +366,22 @@ function unlockAudio() {
     document.getElementById("audioControls").style.display = "block";
     audioPlay();
 }
-
-function audioPlay() {
-    document.getElementById("audioPlayer").play();
+function audioPlay(){ document.getElementById("audioPlayer").play(); }
+function audioPause(){ document.getElementById("audioPlayer").pause(); }
+function audioBack(){
+    const a=document.getElementById("audioPlayer");
+    a.currentTime=Math.max(0,a.currentTime-10);
+}
+function audioForward(){
+    const a=document.getElementById("audioPlayer");
+    a.currentTime=Math.min(a.duration||Infinity,a.currentTime+10);
+}
+function audioMute(){
+    const a=document.getElementById("audioPlayer");
+    a.muted=!a.muted;
 }
 
-function audioPause() {
-    document.getElementById("audioPlayer").pause();
-}
-
-function audioBack() {
-    const a = document.getElementById("audioPlayer");
-    a.currentTime = Math.max(0, a.currentTime - 10);
-}
-
-function audioForward() {
-    const a = document.getElementById("audioPlayer");
-    a.currentTime = Math.min(a.duration || Infinity, a.currentTime + 10);
-}
-
-function audioMute() {
-    const a = document.getElementById("audioPlayer");
-    a.muted = !a.muted;
-}
-
-init();
+init(true);
 </script>
 
 </body>
