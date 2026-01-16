@@ -9,7 +9,6 @@ body {
     font-family: Arial, sans-serif;
     max-width: 1100px;
     margin: 30px auto;
-    color: #222;
 }
 
 h1 {
@@ -24,34 +23,30 @@ h1 {
     line-height: 1.6;
 }
 
-#topbar {
+#status {
     text-align: center;
+    font-weight: bold;
     margin-bottom: 20px;
 }
 
-#timer, #counter {
-    font-weight: bold;
-    margin: 6px 0;
-}
-
-/* COLUMN HEADERS */
+/* headers */
 #headers {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
-.columnTitle {
+.header {
     text-align: center;
     font-weight: bold;
 }
 
-/* ONE ROW = ONE ENGLISH + ONE LATIN */
+/* rows */
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .english, .latin {
@@ -78,7 +73,6 @@ h1 {
 .controls {
     margin-bottom: 6px;
 }
-
 .controls button {
     margin-right: 4px;
     font-weight: bold;
@@ -93,25 +87,25 @@ h1 {
 <h1 style="font-size:1.2rem;">Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
 
 <div id="story">
-    Heretics attacked us! We need your help!<br>
-    Put the following 29 lines of the Latin version<br>
-    of the Nicene-Constantinopolitan Creed<br>
-    back in order!
+Heretics attacked us! We need your help!<br>
+Put the following 29 lines of the Latin version<br>
+of the Nicene-Constantinopolitan Creed<br>
+back in order!
 </div>
 
-<div id="topbar">
-    <div id="timer">Time: 00:00</div>
-    <div id="counter">0 lines out of 29 are correct</div>
+<div id="status">
+<span id="counter">0 lines out of 29 are correct</span>
 </div>
 
 <div id="headers">
-    <div class="columnTitle">English (fixed)</div>
-    <div class="columnTitle">Latin (reorder)</div>
+    <div class="header">English (fixed)</div>
+    <div class="header">Latin (reorder)</div>
 </div>
 
-<div id="gridContent"></div>
+<div id="grid"></div>
 
 <script>
+/* ===== DATA ===== */
 const ENGLISH = [
 "01. I believe in one God,",
 "02. the Father almighty,",
@@ -176,28 +170,28 @@ const LATIN_CORRECT = [
 "(29) et vitam venturi saeculi. Amen."
 ];
 
+/* ===== STATE ===== */
 let latin = [];
-let startTime;
 
-function startTimer() {
-    startTime = Date.now();
-    setInterval(() => {
-        const t = Math.floor((Date.now() - startTime) / 1000);
-        document.getElementById("timer").textContent =
-            `Time: ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
-    }, 1000);
-}
-
+/* ===== INIT ===== */
 function init() {
-    latin = LATIN_CORRECT.map((t,i)=>({text:t, correctIndex:i}));
-    latin.sort(() => Math.random() - 0.5);
+    latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
+
+    // numbered lines stay initially in place
+    const movable = latin.filter(l => !/^\(\d+\)/.test(l.text));
+    movable.sort(() => Math.random() - 0.5);
+
+    latin = latin.map(l =>
+        /^\(\d+\)/.test(l.text) ? l : movable.shift()
+    );
+
     render();
     updateCounter();
-    startTimer();
 }
 
+/* ===== RENDER ===== */
 function render() {
-    const grid = document.getElementById("gridContent");
+    const grid = document.getElementById("grid");
     grid.innerHTML = "";
 
     ENGLISH.forEach((eng,i)=>{
@@ -209,7 +203,7 @@ function render() {
         e.textContent = eng;
 
         const l = document.createElement("div");
-        l.className = "latin" + (latin[i].correctIndex===i ? " correct" : "");
+        l.className = "latin" + (latin[i].correct === i ? " correct" : "");
         l.textContent = latin[i].text;
 
         const ctr = document.createElement("div");
@@ -217,11 +211,11 @@ function render() {
 
         const up = document.createElement("button");
         up.textContent = "↑";
-        up.onclick = ()=>move(i,-1);
+        up.onclick = ()=>swap(i,i-1);
 
         const down = document.createElement("button");
         down.textContent = "↓";
-        down.onclick = ()=>move(i,1);
+        down.onclick = ()=>swap(i,i+1);
 
         ctr.appendChild(up);
         ctr.appendChild(down);
@@ -233,16 +227,16 @@ function render() {
     });
 }
 
-function move(i,d){
-    const j=i+d;
-    if(j<0||j>=latin.length)return;
-    [latin[i],latin[j]]=[latin[j],latin[i]];
+/* ===== LOGIC ===== */
+function swap(i,j){
+    if(j<0||j>=latin.length) return;
+    [latin[i],latin[j]] = [latin[j],latin[i]];
     render();
     updateCounter();
 }
 
 function updateCounter(){
-    const correct = latin.filter((l,i)=>l.correctIndex===i).length;
+    const correct = latin.filter((l,i)=>l.correct===i).length;
     document.getElementById("counter").textContent =
         `${correct} lines out of 29 are correct`;
 }
