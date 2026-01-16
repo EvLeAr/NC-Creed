@@ -34,16 +34,24 @@ h1 {
     margin: 6px 0;
 }
 
-#grid {
+/* COLUMN HEADERS */
+#headers {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
+    margin-bottom: 10px;
 }
-
 .columnTitle {
     text-align: center;
     font-weight: bold;
-    margin-bottom: 6px;
+}
+
+/* ONE ROW = ONE ENGLISH + ONE LATIN */
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
 .english, .latin {
@@ -60,7 +68,6 @@ h1 {
 .latin {
     background: #ffffff;
     border: 2px solid #d0d7e2;
-    cursor: grab;
 }
 
 .latin.correct {
@@ -74,17 +81,6 @@ h1 {
 
 .controls button {
     margin-right: 4px;
-    font-weight: bold;
-}
-
-#audioSection {
-    margin-top: 30px;
-    text-align: center;
-    display: none;
-}
-#audioSection button {
-    margin: 4px;
-    padding: 6px 12px;
     font-weight: bold;
 }
 </style>
@@ -108,22 +104,12 @@ h1 {
     <div id="counter">0 lines out of 29 are correct</div>
 </div>
 
-<div id="grid">
+<div id="headers">
     <div class="columnTitle">English (fixed)</div>
     <div class="columnTitle">Latin (reorder)</div>
 </div>
 
 <div id="gridContent"></div>
-
-<div id="audioSection">
-    <div><strong>Audio unlocked</strong></div>
-    <button onclick="audioBack()">⏪ 10s</button>
-    <button onclick="audioPlay()">▶ Play</button>
-    <button onclick="audioPause()">⏸ Pause</button>
-    <button onclick="audioForward()">⏩ 10s</button>
-</div>
-
-<audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
 const ENGLISH = [
@@ -191,13 +177,11 @@ const LATIN_CORRECT = [
 ];
 
 let latin = [];
-let audioUnlocked = false;
-let timerInterval;
 let startTime;
 
 function startTimer() {
     startTime = Date.now();
-    timerInterval = setInterval(() => {
+    setInterval(() => {
         const t = Math.floor((Date.now() - startTime) / 1000);
         document.getElementById("timer").textContent =
             `Time: ${String(Math.floor(t/60)).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
@@ -206,14 +190,7 @@ function startTimer() {
 
 function init() {
     latin = LATIN_CORRECT.map((t,i)=>({text:t, correctIndex:i}));
-    latin.sort((a,b)=>{
-        const aNum=/^\(\d+\)/.test(a.text);
-        const bNum=/^\(\d+\)/.test(b.text);
-        if(aNum && bNum) return a.correctIndex - b.correctIndex;
-        if(aNum) return -1;
-        if(bNum) return 1;
-        return Math.random() - 0.5;
-    });
+    latin.sort(() => Math.random() - 0.5);
     render();
     updateCounter();
     startTimer();
@@ -222,71 +199,53 @@ function init() {
 function render() {
     const grid = document.getElementById("gridContent");
     grid.innerHTML = "";
+
     ENGLISH.forEach((eng,i)=>{
-        const e=document.createElement("div");
-        e.className="english";
-        e.textContent=eng;
+        const row = document.createElement("div");
+        row.className = "row";
 
-        const l=document.createElement("div");
-        l.className="latin"+(latin[i].correctIndex===i?" correct":"");
-        l.textContent=latin[i].text;
+        const e = document.createElement("div");
+        e.className = "english";
+        e.textContent = eng;
 
-        const ctr=document.createElement("div");
-        ctr.className="controls";
+        const l = document.createElement("div");
+        l.className = "latin" + (latin[i].correctIndex===i ? " correct" : "");
+        l.textContent = latin[i].text;
 
-        const up=document.createElement("button");
-        up.textContent="↑";
-        up.onclick=()=>move(i,-1);
+        const ctr = document.createElement("div");
+        ctr.className = "controls";
 
-        const down=document.createElement("button");
-        down.textContent="↓";
-        down.onclick=()=>move(i,1);
+        const up = document.createElement("button");
+        up.textContent = "↑";
+        up.onclick = ()=>move(i,-1);
+
+        const down = document.createElement("button");
+        down.textContent = "↓";
+        down.onclick = ()=>move(i,1);
 
         ctr.appendChild(up);
         ctr.appendChild(down);
         l.prepend(ctr);
 
-        l.draggable=true;
-        l.ondragstart=e=>e.dataTransfer.setData("text/plain",i);
-        l.ondragover=e=>e.preventDefault();
-        l.ondrop=e=>{
-            e.preventDefault();
-            moveTo(+e.dataTransfer.getData("text/plain"),i);
-        };
-
-        grid.appendChild(e);
-        grid.appendChild(l);
+        row.appendChild(e);
+        row.appendChild(l);
+        grid.appendChild(row);
     });
 }
 
 function move(i,d){
     const j=i+d;
-    if(j<0||j>=29)return;
+    if(j<0||j>=latin.length)return;
     [latin[i],latin[j]]=[latin[j],latin[i]];
-    render(); updateCounter();
-}
-
-function moveTo(from,to){
-    if(from===to)return;
-    const item=latin.splice(from,1)[0];
-    latin.splice(to,0,item);
-    render(); updateCounter();
+    render();
+    updateCounter();
 }
 
 function updateCounter(){
     const correct = latin.filter((l,i)=>l.correctIndex===i).length;
     document.getElementById("counter").textContent =
         `${correct} lines out of 29 are correct`;
-    if(!audioUnlocked && correct>=18){
-        audioUnlocked=true;
-        document.getElementById("audioSection").style.display="block";
-    }
 }
-
-function audioPlay(){audioPlayer.play();}
-function audioPause(){audioPlayer.pause();}
-function audioBack(){audioPlayer.currentTime=Math.max(0,audioPlayer.currentTime-10);}
-function audioForward(){audioPlayer.currentTime+=10;}
 
 init();
 </script>
