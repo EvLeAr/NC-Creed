@@ -11,12 +11,15 @@ body {
     max-width: 1100px;
     margin: 20px auto;
     padding: 10px;
-    background: linear-gradient(#f7fbff, #eef6ff);
+    background:
+        linear-gradient(rgba(247,251,255,0.9), rgba(238,246,255,0.9)),
+        url("creation.jpg") no-repeat center center fixed;
+    background-size: cover;
     transition: background-color 1s;
 }
 
 body.completed {
-    background-color: #b7ddff;
+    background: #d9ecff;
 }
 
 h1 {
@@ -127,16 +130,29 @@ h1 {
     margin-top: 40px;
 }
 #completion h2 {
-    font-size: 3rem;
+    font-size: 3.5rem;
     color: #ffd700;
-    text-shadow: 2px 2px #3a5fa0;
+    text-shadow: 2px 2px #4a6fa5;
 }
 #completion p {
     font-size: 1.4rem;
     font-weight: bold;
 }
 
-/* MOBILE STACK */
+/* FOOTER */
+#footer {
+    margin-top: 40px;
+    font-size: 0.75rem;
+    color: #777;
+    text-align: center;
+}
+#footer a {
+    color: inherit;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* MOBILE */
 @media (max-width: 600px) {
     #headers, .row {
         grid-template-columns: 1fr;
@@ -168,12 +184,8 @@ back in order!
 
 <div id="audioBox">
     <div id="audioHelp">
-        This audio of the chanting of the Latin version,
-        from the YouTube page
-        <a href="https://www.youtube.com/@PetrusJosephus" target="_blank">
-            Petrus Josephus
-        </a>,
-        can help, but it will open only after you place
+        This audio of the chanting of the Latin version can help,
+        but it will open only after you place
         12 lines in the correct place.
     </div>
     <div id="audioStatus">🔒 Audio locked</div>
@@ -195,6 +207,14 @@ back in order!
 <div id="completion">
     <h2>Done! Halleluja! Glory!</h2>
     <p id="finalTime"></p>
+</div>
+
+<div id="footer">
+    <br><br>
+    Music from the YouTube page
+    <a href="https://www.youtube.com/@PetrusJosephus" target="_blank">
+        Petrus Josephus
+    </a>
 </div>
 
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
