@@ -6,208 +6,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
-/* ===== FULL BACKGROUND IMAGE ===== */
 html {
     background: url("creation.jpg") no-repeat center center fixed;
     background-size: cover;
 }
 
-/* ===== CONTENT LAYER ===== */
 body {
     font-family: Arial, sans-serif;
     max-width: 1100px;
     margin: 20px auto;
     padding: 14px;
-    background: linear-gradient(
-        rgba(247,251,255,0.94),
-        rgba(238,246,255,0.94)
-    );
+    background: rgba(245,250,255,0.94);
 }
 
-/* ===== HEADERS & INSTRUCTIONS ===== */
-h1 {
-    text-align: center;
-    margin: 6px 0;
-    color: #1f3b57;
-}
+/* HEADERS */
+h1 { text-align:center; margin:6px 0; }
 
 #story {
-    text-align: center;
-    font-weight: bold;
-    margin: 22px 0;
-    line-height: 1.7;
-    font-size: 1.15rem;
-    color: #2b4f6b;
+    text-align:center;
+    font-weight:bold;
+    margin:18px 0;
+    line-height:1.6;
 }
 
-#status {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 12px;
-    font-size: 1.05rem;
-    color: #243f55;
-}
+#status { text-align:center; font-weight:bold; }
 
-/* ===== AUDIO ===== */
+/* AUDIO */
 #audioBox {
-    margin: 22px 0;
-    padding: 16px;
-    border: 3px dashed #9bb7d9;
-    background: #f4f9ff;
-    text-align: center;
-    border-radius: 14px;
+    margin:20px 0;
+    padding:14px;
+    border:3px dashed #9bb7d9;
+    background:#f4f9ff;
+    text-align:center;
+    border-radius:12px;
 }
 #audioBox.unlocked {
-    border-color: #2e7d32;
-    background: #eaf8ee;
-}
-#audioHelp {
-    margin-bottom: 10px;
-    font-style: italic;
-    font-size: 1.05rem;
-    color: #355d7a;
-}
-#audioControls button {
-    margin: 6px;
-    padding: 10px 18px;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 10px;
+    border-color:#2e7d32;
+    background:#eaf8ee;
 }
 
-/* ===== GRID ===== */
-#headers {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 10px;
-}
-.header {
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.15rem;
-    color: #314b63;
-}
-
+/* GRID */
 .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:8px;
 }
 
-/* ===== TEXT BLOCKS ===== */
 .english, .latin {
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: bold;
-    line-height: 1.45;
+    padding:12px;
+    border-radius:10px;
+    font-weight:bold;
 }
 
-/* English — BLUE */
 .english {
-    background: #e8f0ff;
-    border: 2px solid #b6ccff;
-    color: #1f4fbf;
-    font-size: 1.15rem;
+    background:#e8f0ff;
+    border:2px solid #b6ccff;
 }
 
-/* Latin — PURPLE */
 .latin {
-    background: #f8f3ff;
-    border: 3px solid #c7b3e6;
-    color: #5b2d91;
-    font-size: 1.15rem;
-    cursor: grab;
-    touch-action: none;
+    background:#fff5ff;
+    border:3px solid #caa0d8;
+    cursor:grab;
+    touch-action:none;
 }
 
 .latin.correct {
-    background: #eef9f1;
-    border-color: #2e7d32;
+    background:#e9f8ef;
+    border-color:#2e7d32;
 }
 
-/* ===== CONTROLS ===== */
 .controls button {
-    width: 46px;
-    height: 46px;
-    font-size: 1.3rem;
-    font-weight: bold;
-    margin-right: 6px;
+    width:44px;
+    height:44px;
+    font-size:1.2rem;
 }
 
-/* ===== COMPLETION OVERLAY ===== */
+/* COMPLETION */
 #completionOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(185, 215, 255, 0.95);
-    z-index: 9999;
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(180,215,255,0.95);
+    z-index:9999;
 }
 
 #completionContent {
-    position: relative;
-    top: 40%;
-    transform: translateY(-40%);
-    text-align: center;
+    position:relative;
+    top:40%;
+    transform:translateY(-40%);
+    text-align:center;
 }
 
 #completionContent h2 {
-    font-size: 4rem;
-    color: gold;
-    text-shadow: 2px 2px 6px #2f4f7f;
-    margin-bottom: 22px;
+    font-size:4rem;
+    color:gold;
 }
 
-#completionContent p {
-    font-size: 1.6rem;
-    font-weight: bold;
-    color: #203b55;
-}
-
-/* ===== FIREWORKS ===== */
 .firework {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: gold;
-    border-radius: 50%;
-    animation: explode 1.5s ease-out forwards;
+    position:absolute;
+    width:8px;
+    height:8px;
+    background:gold;
+    border-radius:50%;
+    animation:explode 1.5s ease-out forwards;
 }
 
 @keyframes explode {
-    from { transform: scale(0); opacity: 1; }
-    to { transform: scale(6); opacity: 0; }
+    from { transform:scale(0); opacity:1; }
+    to { transform:scale(6); opacity:0; }
 }
 
-/* ===== FOOTER ===== */
-#footer {
-    margin-top: 44px;
-    font-size: 0.75rem;
-    color: #777;
-    text-align: center;
+@media (max-width:600px) {
+    .row { grid-template-columns:1fr; }
 }
-#footer a {
-    color: inherit;
-    text-decoration: none;
-    cursor: default;
-}
-
-/* ===== MOBILE ===== */
-@media (max-width: 600px) {
-    #headers, .row { grid-template-columns: 1fr; }
-    .header { display: none; }
-}
-
 </style>
 </head>
 
 <body>
 
-<h1 style="font-size:3.2rem;">Save Our Creed!</h1>
-<h1 style="font-size:1.25rem;">RELI/EURO 270: Religion in Western Europe</h1>
-<h1 style="font-size:1.25rem;">Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
+<h1 style="font-size:3rem;">Save Our Creed!</h1>
+<h1>RELI/EURO 270: Religion in Western Europe</h1>
+<h1>Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
 
 <div id="story">
 Heretics attacked us! We need your help!<br>
@@ -217,73 +137,48 @@ back in order!
 </div>
 
 <div id="status">
-    <div id="timer">Time: 00:00</div>
-    <div id="counter">0 lines out of 29 are correct</div>
+<div id="timer">Time: 00:00</div>
+<div id="counter">0 lines out of 29 are correct</div>
 </div>
 
 <div id="audioBox">
-    <div id="audioHelp">
-        This audio of the chanting of the Latin version can help,
-        but it will open only after you place
-        12 lines in the correct place.
-    </div>
-    <div id="audioStatus">🔒 Audio locked</div>
-    <div id="audioControls" style="display:none;">
-        <button onclick="audioBack()">⏪</button>
-        <button onclick="audioPlay()">▶</button>
-        <button onclick="audioPause()">⏸</button>
-        <button onclick="audioForward()">⏩</button>
-    </div>
+This audio of the chanting of the Latin version can help,
+but it will open only after you place 12 lines in the correct place.
+<div id="audioStatus">🔒 Audio locked</div>
+<div id="audioControls" style="display:none;">
+<button onclick="audioBack()">⏪</button>
+<button onclick="audioPlay()">▶</button>
+<button onclick="audioPause()">⏸</button>
+<button onclick="audioForward()">⏩</button>
 </div>
-
-<div id="headers">
-    <div class="header">English</div>
-    <div class="header">Latin</div>
 </div>
 
 <div id="grid"></div>
 
-<div id="footer">
-    <br><br>
-    Music from the YouTube page
-    <a href="https://www.youtube.com/@PetrusJosephus" target="_blank">
-        Petrus Josephus
-    </a>
-</div>
-
 <div id="completionOverlay">
-    <div id="completionContent">
-        <h2>Done! Halleluja! Glory!</h2>
-        <p id="finalTime"></p>
-    </div>
+<div id="completionContent">
+<h2>Done! Halleluja! Glory!</h2>
+<p id="finalTime"></p>
+</div>
 </div>
 
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
-/* ===== DATA ===== */
-
 const ENGLISH = [
-"01. I believe in one God,",
-"02. the Father almighty,",
-"03. maker of heaven and earth,",
-"04. of all things visible and invisible.",
-"05. And in one Lord Jesus Christ,",
-"06. the Only Begotten Son of God,",
-"07. born of the Father before all ages.",
-"08. God from God, Light from Light,",
-"09. true God from true God,",
-"10. begotten, not made, consubstantial with the Father;",
+"01. I believe in one God,","02. the Father almighty,",
+"03. maker of heaven and earth,","04. of all things visible and invisible.",
+"05. And in one Lord Jesus Christ,","06. the Only Begotten Son of God,",
+"07. born of the Father before all ages.","08. God from God, Light from Light,",
+"09. true God from true God,","10. begotten, not made, consubstantial with the Father;",
 "11. through him all things were made.",
 "12. For us men and for our salvation he came down from heaven,",
-"13. and by the Holy Spirit was incarnate",
-"14. of the Virgin Mary, and became man.",
+"13. and by the Holy Spirit was incarnate","14. of the Virgin Mary, and became man.",
 "15. For our sake he was crucified under Pontius Pilate,",
 "16. he suffered death and was buried,",
 "17. and rose again on the third day, in accordance with the Scriptures.",
 "18. He ascended into heaven, and is seated at the right hand of the Father.",
-"19. He will come again in glory",
-"20. to judge the living and the dead",
+"19. He will come again in glory","20. to judge the living and the dead",
 "21. and his kingdom will have no end.",
 "22. And in the Holy Spirit, the Lord, the giver of life,",
 "23. who proceeds from the Father and the Son,",
@@ -295,19 +190,23 @@ const ENGLISH = [
 "29. and the life of the world to come. Amen."
 ];
 
-const LATIN = [
-"(1) Credo in unum Deum,","Patrem omnipotentem,","(3) factorem caeli et terrae,",
-"visibilium omnium et invisibilium,","Et in unum Dominum Iesum Christum,",
-"Filium Dei unigenitum,","et ex Patre natum, ante omnia saecula,",
+const LATIN_CORRECT = [
+"(1) Credo in unum Deum,","Patrem omnipotentem,",
+"(3) factorem caeli et terrae,","visibilium omnium et invisibilium,",
+"Et in unum Dominum Iesum Christum,","Filium Dei unigenitum,",
+"et ex Patre natum, ante omnia saecula,",
 "(8) Deum de Deo, lumen de Lumine,","Deum verum de Deo vero,",
 "genitum, non factum, consubstantialem Patri:",
-"(11) per quem omnia facta sunt.","Qui propter nos homines et propter nostram salutem descendit de caelis.",
-"Et incarnatus est de Spiritu Sancto","ex Maria Virgine, et homo factus est.",
-"Crucifixus etiam pro nobis sub Pontio Pilato;","passus et sepultus est,",
+"(11) per quem omnia facta sunt.",
+"Qui propter nos homines et propter nostram salutem descendit de caelis.",
+"Et incarnatus est de Spiritu Sancto",
+"ex Maria Virgine, et homo factus est.",
+"Crucifixus etiam pro nobis sub Pontio Pilato;",
+"passus et sepultus est,",
 "(17) et resurrexit tertia die, secundum Scripturas,",
 "et ascendit in caelum, sedet ad dexteram Patris.",
-"Et iterum venturus est cum gloria,","iudicare vivos et mortuos,",
-"cuius regni non erit finis.",
+"Et iterum venturus est cum gloria,",
+"iudicare vivos et mortuos,","cuius regni non erit finis.",
 "(22) Et in Spiritum Sanctum, Dominum et vivificantem:",
 "qui ex Patre Filioque procedit.",
 "Qui cum Patre et Filio simul adoratur et conglorificatur:",
@@ -318,12 +217,17 @@ const LATIN = [
 "(29) et vitam venturi saeculi. Amen."
 ];
 
-let latin = LATIN.map((t,i)=>({text:t, correct:i}));
-latin.sort(()=>Math.random()-0.5);
+let latin = LATIN_CORRECT.map((t,i)=>({ text:t, correct:i }));
 
-let timerStarted=false, startTime, completed=false, audioUnlocked=false;
+// initial shuffle but keep numbered lines in place
+const fixed = latin.filter(l => /^\(\d+\)/.test(l.text));
+const movable = latin.filter(l => !/^\(\d+\)/.test(l.text)).sort(()=>Math.random()-0.5);
+latin = LATIN_CORRECT.map(t =>
+    /^\(\d+\)/.test(t) ? fixed.shift() : movable.shift()
+);
 
-/* ===== TIMER ===== */
+let timerStarted=false,startTime,audioUnlocked=false,completed=false,dragIndex=null;
+
 function startTimer(){
     if(timerStarted) return;
     timerStarted=true;
@@ -334,7 +238,6 @@ function startTimer(){
     },1000);
 }
 
-/* ===== RENDER ===== */
 function render(){
     grid.innerHTML="";
     latin.forEach((l,i)=>{
@@ -348,6 +251,18 @@ function render(){
         const d=document.createElement("div");
         d.className="latin"+(l.correct===i?" correct":"");
         d.textContent=l.text;
+        d.draggable=true;
+
+        d.addEventListener("dragstart",()=>{ dragIndex=i; startTimer(); });
+        d.addEventListener("dragover",e=>e.preventDefault());
+        d.addEventListener("drop",()=>{
+            if(dragIndex===null) return;
+            const item=latin.splice(dragIndex,1)[0];
+            latin.splice(i,0,item);
+            dragIndex=null;
+            render();
+            check();
+        });
 
         const up=document.createElement("button");
         up.textContent="↑";
@@ -367,33 +282,28 @@ function render(){
     });
 }
 
-/* ===== GAME LOGIC ===== */
 function swap(i,j){
     startTimer();
     if(j<0||j>=latin.length) return;
     [latin[i],latin[j]]=[latin[j],latin[i]];
-    render();
-    check();
+    render(); check();
 }
 
 function check(){
     const ok=latin.filter((l,i)=>l.correct===i).length;
     counter.textContent=`${ok} lines out of 29 are correct`;
-
     if(ok>=12 && !audioUnlocked){
         audioUnlocked=true;
         audioControls.style.display="block";
         audioStatus.textContent="🔓 Audio unlocked";
         audioBox.classList.add("unlocked");
     }
-
     if(ok===29 && !completed){
         completed=true;
         showCompletion();
     }
 }
 
-/* ===== COMPLETION ===== */
 function showCompletion(){
     completionOverlay.style.display="block";
     const s=Math.floor((Date.now()-startTime)/1000);
@@ -411,36 +321,12 @@ function spawnFirework(){
     setTimeout(()=>f.remove(),1500);
 }
 
-/* ===== AUDIO ===== */
 function audioPlay(){audioPlayer.play();}
 function audioPause(){audioPlayer.pause();}
 function audioBack(){audioPlayer.currentTime=Math.max(0,audioPlayer.currentTime-10);}
 function audioForward(){audioPlayer.currentTime+=10;}
 
-/* ===== INSTRUCTOR OVERRIDES ===== */
-document.addEventListener("keydown",e=>{
-    if(!e.shiftKey) return;
-
-    if(e.key==="A"){
-        audioUnlocked=true;
-        audioControls.style.display="block";
-        audioStatus.textContent="🔓 Audio unlocked (instructor)";
-        audioBox.classList.add("unlocked");
-    }
-
-    if(e.key==="D"){
-        latin.sort((a,b)=>a.correct-b.correct);
-        render();
-        showCompletion();
-    }
-
-    if(e.key==="R"){
-        location.reload();
-    }
-});
-
-render();
-check();
+render(); check();
 </script>
 
 </body>
