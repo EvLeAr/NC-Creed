@@ -5,61 +5,46 @@
 <title>Save Our Creed!</title>
 
 <style>
+/* ===== BODY + BACKGROUND ===== */
 body {
     font-family: Arial, sans-serif;
-    max-width: 900px;
+    max-width: 1100px;
     margin: 30px auto;
-    background: #f0f4f8;
     color: #222;
+
+    background-image: url("creation.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
-/* ===== IMAGE ===== */
-#referenceImage {
-    text-align: center;
-    margin-bottom: 20px;
-}
-#referenceImage img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    border: 2px solid #c0c9d6;
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(240, 244, 248, 0.88);
+    z-index: -1;
 }
 
 /* ===== TOP BAR ===== */
 #topbar {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
-#timer {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: #1a4fa3;
-}
+
 #counter {
-    margin-top: 6px;
-    font-size: 1.05em;
+    font-size: 1.1em;
+    font-weight: bold;
 }
+
 #mediaButtons {
     margin-top: 10px;
 }
+
 #mediaButtons button {
-    margin: 0 6px;
-    padding: 6px 14px;
-    font-size: 0.95em;
-    border-radius: 6px;
-    border: 1px solid #777;
-    background: #e8ecf3;
-    cursor: pointer;
-}
-#mediaButtons button:disabled {
-    background: #cccccc;
-    border-color: #999;
-    cursor: not-allowed;
-}
-#mediaHint {
-    margin-top: 6px;
-    font-size: 0.9em;
-    color: #555;
+    padding: 8px 16px;
+    font-weight: bold;
 }
 
 /* ===== HEADERS ===== */
@@ -68,281 +53,302 @@ h1 {
     margin: 4px 0;
     color: #1f3a5f;
 }
+
 #separator {
     text-align: center;
     font-weight: bold;
-    letter-spacing: 2px;
-    margin: 6px 0 14px 0;
-}
-#instructions {
-    text-align: center;
-    font-size: 1.05em;
-    margin: 20px 0 25px 0;
+    margin: 12px 0 20px;
 }
 
-/* ===== GAME ===== */
-#lineContainer {
-    margin-top: 20px;
+/* ===== GRID ===== */
+#grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
 }
-.line {
-    display: flex;
-    align-items: center;
-    padding: 14px;
-    margin: 8px 0;
-    border: 2px solid #d0d7e2;
-    border-radius: 10px;
-    background: #ffffff;
-    font-size: 1.05em;
+
+.columnTitle {
+    font-weight: bold;
+    text-align: center;
+}
+
+.english, .latin {
+    padding: 10px;
+    border-radius: 8px;
     font-weight: bold;
 }
-.line.fixed {
+
+.english {
     background: #eef3f9;
-    border-color: #9fb6d8;
+    border: 1px solid #b6c7df;
 }
-.line.dragging {
-    opacity: 0.4;
+
+.latin {
+    background: #ffffff;
+    border: 2px solid #d0d7e2;
 }
-.text {
-    flex-grow: 1;
-    padding: 0 12px;
+
+.latin.fixed {
+    background: #f1f1f1;
+    border-color: #999;
 }
+
 .controls {
-    display: flex;
-    gap: 6px;
+    margin-bottom: 6px;
 }
-button {
-    font-size: 0.9em;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #888;
-    background: #e8ecf3;
+
+.controls button {
+    margin-right: 4px;
 }
-button:hover:not(:disabled) {
-    background: #dbe3ef;
-}
-#buttons {
-    text-align: center;
+
+/* ===== AUDIO CONTROLS ===== */
+#audioControls {
     margin-top: 25px;
+    text-align: center;
+    display: none;
 }
-#buttons button {
-    margin: 0 10px;
+
+#audioControls button {
     font-size: 1em;
-}
-#result {
-    margin-top: 25px;
-    text-align: center;
-    font-size: 1.4em;
+    padding: 8px 14px;
+    margin: 4px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #f5f5f5;
+    cursor: pointer;
     font-weight: bold;
 }
 
-/* ===== MOBILE ===== */
-@media (hover: none) and (pointer: coarse) {
-    .controls {
-        flex-direction: column;
-        margin-right: 8px;
-    }
-    .controls button {
-        font-size: 1.1em;
-        padding: 10px 14px;
-        border-radius: 8px;
-        font-weight: bold;
-        color: white;
-        border: none;
-    }
-    .controls button:first-child { background-color: #2e7d32; }
-    .controls button:last-child { background-color: #c62828; }
-    .controls button:active {
-        transform: scale(0.95);
-        opacity: 0.85;
-    }
+/* ===== HALLELUJAH OVERLAY ===== */
+#hallelujah {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    color: gold;
+    font-size: 4rem;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    z-index: 9999;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
 }
 </style>
 </head>
 
 <body>
 
-<div id="referenceImage">
-    <img src="NCCreedEnglish29Lines.png" alt="Nicene Creed in English">
-</div>
-
 <div id="topbar">
-    <div id="timer">Time: 00:00</div>
-    <div id="counter">0 lines out of 29 are in the correct place</div>
+    <div id="counter">0 lines out of 29 are correct</div>
     <div id="mediaButtons">
-        <button id="playVideoBtn" onclick="playVideo()" disabled>Play Video</button>
-        <div id="mediaHint">Video unlocks after 18 lines are correct.</div>
+        <button id="playVideoBtn" onclick="unlockAudio()" disabled>Play Audio</button>
+        <div id="mediaHint">Audio unlocks after 18 correct.</div>
     </div>
 </div>
 
 <h1>Save Our Creed!</h1>
 <h1>[RELI/EURO 270: Religion in Western Europe]</h1>
 <h1>[Dr. Evyatar Marienberg & ChatGPT, 2026]</h1>
-<h1>[Video by “Petrus Josephus”]</h1>
-<div id="separator">---------------------------</div>
-<h1>Heretics attacked us! We need your help!</h1>
-<h1>Put the following 29 lines of the Latin version</h1>
-<h1>of the Nicene-Constantinopolitan Creed</h1>
-<h1>back in order!</h1>
+<div id="separator">────────────────────────</div>
 
-<div id="instructions">
-Numbered lines are already in the correct place and cannot be moved.
-On computers, drag the other lines. On phones, use UP and DOWN.
+<div id="grid">
+    <div class="columnTitle">English (fixed)</div>
+    <div class="columnTitle">Latin (reorder)</div>
 </div>
 
-<div id="lineContainer"></div>
+<audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
-<div id="buttons">
-    <button onclick="checkOrder()">Check Order</button>
-    <button onclick="init()">Reshuffle</button>
+<div id="audioControls">
+    <button onclick="audioBack()">⏪ 10s</button>
+    <button onclick="audioPlay()">▶ Play</button>
+    <button onclick="audioPause()">⏸ Pause</button>
+    <button onclick="audioForward()">⏩ 10s</button>
+    <button onclick="audioMute()">🔇 / 🔊</button>
 </div>
 
-<div id="result"></div>
-
-<video id="videoPlayer" src="NCCreed.mp4" controls
-       style="display:none; width:100%; margin-top:20px;"></video>
+<div id="hallelujah">Done,<br>“Hallelujah”!</div>
 
 <script>
-const SOURCE_TEXT = `
-(1) Credo in unum Deum,
-Patrem omnipotentem,
-(3) factorem caeli et terrae,
-visibilium omnium et invisibilium,
-(5) Et in unum Dominum Iesum Christum,
-Filium Dei unigenitum,
-et ex Patre natum, ante omnia saecula,
-(8) Deum de Deo, lumen de Lumine,
-Deum verum de Deo vero,
-genitum, non factum, consubstantialem Patri:
-(11) per quem omnia facta sunt.
-Qui propter nos homines et propter nostram salutem descendit de caelis.
-(13) Et incarnatus est de Spiritu Sancto
-ex Maria Virgine, et homo factus est.
-Crucifixus etiam pro nobis sub Pontio Pilato;
-passus et sepultus est,
-(17) et resurrexit tertia die, secundum Scripturas,
-et ascendit in caelum, sedet ad dexteram Patris.
-(19) Et iterum venturus est cum gloria,
-iudicare vivos et mortuos,
-cuius regni non erit finis.
-(22) Et in Spiritum Sanctum, Dominum et vivificantem:
-qui ex Patre Filioque procedit.
-(23) Qui cum Patre et Filio simul adoratur et conglorificatur:
-qui locutus est per prophetas.
-(26) Et unam, sanctam, catholicam et apostolicam Ecclesiam.
-Confiteor unum baptisma in remissionem peccatorum.
-Et exspecto resurrectionem mortuorum,
-(29) et vitam venturi saeculi. Amen.
-`.trim().split("\n");
+/* ===== ENGLISH ===== */
+const ENGLISH = [
+"01. I believe in one God,",
+"02. the Father almighty,",
+"03. maker of heaven and earth,",
+"04. of all things visible and invisible.",
+"05. And in one Lord Jesus Christ,",
+"06. the Only Begotten Son of God,",
+"07. born of the Father before all ages.",
+"08. God from God, Light from Light,",
+"09. true God from true God,",
+"10. begotten, not made, consubstantial with the Father;",
+"11. through him all things were made.",
+"12. For us men and for our salvation he came down from heaven,",
+"13. and by the Holy Spirit was incarnate",
+"14. of the Virgin Mary, and became man.",
+"15. For our sake he was crucified under Pontius Pilate,",
+"16. he suffered death and was buried,",
+"17. and rose again on the third day, in accordance with the Scriptures.",
+"18. He ascended into heaven, and is seated at the right hand of the Father.",
+"19. He will come again in glory",
+"20. to judge the living and the dead",
+"21. and his kingdom will have no end.",
+"22. And in the Holy Spirit, the Lord, the giver of life,",
+"23. who proceeds from the Father and the Son,",
+"24. who with the Father and the Son is adored and glorified,",
+"25. who has spoken through the prophets.",
+"26. And one, holy, catholic and apostolic Church.",
+"27. I confess one baptism for the forgiveness of sins",
+"28. and I look forward to the resurrection of the dead",
+"29. and the life of the world to come. Amen."
+];
 
-const COLORS = ["#1b5e9a","#7b1fa2","#c62828","#2e7d32","#ef6c00"];
-let lines=[], videoUnlocked=false;
+/* ===== LATIN ===== */
+const LATIN_SOURCE = [
+"(1) Credo in unum Deum,",
+"Patrem omnipotentem,",
+"(3) factorem caeli et terrae,",
+"visibilium omnium et invisibilium,",
+"(5) Et in unum Dominum Iesum Christum,",
+"Filium Dei unigenitum,",
+"et ex Patre natum, ante omnia saecula,",
+"(8) Deum de Deo, lumen de Lumine,",
+"Deum verum de Deo vero,",
+"genitum, non factum, consubstantialem Patri:",
+"(11) per quem omnia facta sunt.",
+"Qui propter nos homines et propter nostram salutem descendit de caelis.",
+"(13) Et incarnatus est de Spiritu Sancto",
+"ex Maria Virgine, et homo factus est.",
+"Crucifixus etiam pro nobis sub Pontio Pilato;",
+"passus et sepultus est,",
+"(17) et resurrexit tertia die, secundum Scripturas,",
+"et ascendit in caelum, sedet ad dexteram Patris.",
+"(19) Et iterum venturus est cum gloria,",
+"iudicare vivos et mortuos,",
+"cuius regni non erit finis.",
+"(22) Et in Spiritum Sanctum, Dominum et vivificantem:",
+"qui ex Patre Filioque procedit.",
+"(23) Qui cum Patre et Filio simul adoratur et conglorificatur:",
+"qui locutus est per prophetas.",
+"(26) Et unam, sanctam, catholicam et apostolicam Ecclesiam.",
+"Confiteor unum baptisma in remissionem peccatorum.",
+"Et exspecto resurrectionem mortuorum,",
+"(29) et vitam venturi saeculi. Amen."
+];
+
+let latin = [];
+let audioUnlocked = false;
 
 /* ===== INIT ===== */
-function init(){
-    const fixed=[], movable=[];
-    SOURCE_TEXT.forEach((t,i)=>{
-        const o={text:t,index:i,fixed:/^\(\d+\)/.test(t),color:COLORS[i%COLORS.length]};
-        o.fixed?fixed.push(o):movable.push(o);
-    });
-    movable.sort(()=>Math.random()-0.5);
-    lines=SOURCE_TEXT.map((_,i)=>fixed.find(f=>f.index===i)||movable.shift());
+function init() {
+    latin = LATIN_SOURCE
+        .map(t => ({ text: t, fixed: /^\(\d+\)/.test(t) }))
+        .sort(() => Math.random() - 0.5);
     render();
     updateCounter();
 }
 
-/* ===== RENDER (FIXED DROP LOGIC) ===== */
-function render(){
-    const c=document.getElementById("lineContainer");
-    c.innerHTML="";
-    lines.forEach((l,i)=>{
-        const d=document.createElement("div");
-        d.className="line"+(l.fixed?" fixed":"");
-        d.draggable=!l.fixed;
+/* ===== RENDER ===== */
+function render() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = `
+        <div class="columnTitle">English (fixed)</div>
+        <div class="columnTitle">Latin (reorder)</div>
+    `;
 
-        if(!l.fixed){
-            d.ondragstart=()=>{d.classList.add("dragging");d.dataset.i=i;};
-            d.ondragend=()=>d.classList.remove("dragging");
+    ENGLISH.forEach((eng, i) => {
+        const e = document.createElement("div");
+        e.className = "english";
+        e.textContent = eng;
+
+        const l = document.createElement("div");
+        l.className = "latin" + (latin[i].fixed ? " fixed" : "");
+        l.textContent = latin[i].text;
+
+        if (!latin[i].fixed) {
+            const ctr = document.createElement("div");
+            ctr.className = "controls";
+
+            const up = document.createElement("button");
+            up.textContent = "↑";
+            up.onclick = () => swap(i, i - 1);
+
+            const down = document.createElement("button");
+            down.textContent = "↓";
+            down.onclick = () => swap(i, i + 1);
+
+            ctr.appendChild(up);
+            ctr.appendChild(down);
+            l.prepend(ctr);
         }
 
-        d.ondragover=e=>e.preventDefault();
-        d.ondrop=e=>{
-            const from=+document.querySelector(".dragging")?.dataset.i;
-            if(from==null) return;
-
-            let target=i;
-            if(lines[target].fixed){
-                target = findNearestMovableIndex(target);
-            }
-
-            const item=lines.splice(from,1)[0];
-            lines.splice(target,0,item);
-            render(); updateCounter();
-        };
-
-        const ctr=document.createElement("div");
-        ctr.className="controls";
-        if(!l.fixed){
-            const up=document.createElement("button");
-            up.textContent="↑ UP";
-            up.onclick=()=>move(i,-1);
-            const down=document.createElement("button");
-            down.textContent="↓ DOWN";
-            down.onclick=()=>move(i,1);
-            ctr.appendChild(up); ctr.appendChild(down);
-        }
-
-        const txt=document.createElement("div");
-        txt.className="text";
-        txt.textContent=l.text;
-        txt.style.color=l.color;
-
-        d.appendChild(ctr); d.appendChild(txt);
-        c.appendChild(d);
+        grid.appendChild(e);
+        grid.appendChild(l);
     });
 }
 
-/* ===== HELPERS ===== */
-function findNearestMovableIndex(i){
-    for(let d=1; d<lines.length; d++){
-        if(lines[i-d] && !lines[i-d].fixed) return i-d;
-        if(lines[i+d] && !lines[i+d].fixed) return i+d;
-    }
-    return i;
+/* ===== LOGIC ===== */
+function swap(i, j) {
+    if (j < 0 || j >= latin.length) return;
+    if (latin[i].fixed || latin[j].fixed) return;
+    [latin[i], latin[j]] = [latin[j], latin[i]];
+    render();
+    updateCounter();
 }
 
-function move(i,delta){
-    const j=i+delta;
-    if(lines[j] && !lines[j].fixed){
-        [lines[i],lines[j]]=[lines[j],lines[i]];
-        render(); updateCounter();
-    }
-}
+function updateCounter() {
+    let correct = 0;
+    latin.forEach((l, i) => {
+        if (l.text === LATIN_SOURCE[i]) correct++;
+    });
 
-function updateCounter(){
-    let correct=0;
-    lines.forEach((l,i)=>{if(l.text===SOURCE_TEXT[i]) correct++;});
     document.getElementById("counter").textContent =
-        `${correct} lines out of ${SOURCE_TEXT.length} are in the correct place`;
-    if(!videoUnlocked && correct>=18){
-        videoUnlocked=true;
-        document.getElementById("playVideoBtn").disabled=false;
-        document.getElementById("mediaHint").textContent="Video unlocked.";
+        `${correct} lines out of 29 are correct`;
+
+    if (!audioUnlocked && correct >= 18) {
+        audioUnlocked = true;
+        document.getElementById("playVideoBtn").disabled = false;
+        document.getElementById("mediaHint").textContent = "Audio unlocked.";
+    }
+
+    if (correct === 29) {
+        document.getElementById("hallelujah").style.display = "flex";
     }
 }
 
-function checkOrder(){
-    const ok = lines.every((l,i)=>l.text===SOURCE_TEXT[i]);
-    const r=document.getElementById("result");
-    r.textContent=ok?"Correct ✔":"Not correct yet ✘";
-    r.style.color=ok?"green":"#b71c1c";
+/* ===== AUDIO ===== */
+function unlockAudio() {
+    if (!audioUnlocked) return;
+    document.getElementById("audioControls").style.display = "block";
+    audioPlay();
 }
 
-function playVideo(){
-    if(!videoUnlocked) return;
-    const v=document.getElementById("videoPlayer");
-    v.style.display="block";
-    v.play();
+function audioPlay() {
+    document.getElementById("audioPlayer").play();
+}
+
+function audioPause() {
+    document.getElementById("audioPlayer").pause();
+}
+
+function audioBack() {
+    const a = document.getElementById("audioPlayer");
+    a.currentTime = Math.max(0, a.currentTime - 10);
+}
+
+function audioForward() {
+    const a = document.getElementById("audioPlayer");
+    a.currentTime = Math.min(a.duration || Infinity, a.currentTime + 10);
+}
+
+function audioMute() {
+    const a = document.getElementById("audioPlayer");
+    a.muted = !a.muted;
 }
 
 init();
@@ -350,4 +356,3 @@ init();
 
 </body>
 </html>
-
