@@ -10,7 +10,6 @@ html {
     background: url("creation.jpg") no-repeat center center fixed;
     background-size: cover;
 }
-
 body {
     font-family: Arial, sans-serif;
     max-width: 1200px;
@@ -18,27 +17,22 @@ body {
     padding: 16px;
     background-color: rgba(245, 250, 255, 0.95);
 }
-
-/* HEADERS */
 h1 { text-align:center; margin:6px 0; }
 
-/* STORY / INSTRUCTIONS */
 #story {
     text-align:center;
     font-weight:bold;
     line-height:1.7;
     margin:20px 0;
-    font-size: 1.25rem; /* slightly larger */
+    font-size: 1.25rem;
 }
 
-/* STATUS */
 #status {
     text-align:center;
     font-weight:bold;
     margin-bottom:15px;
 }
 
-/* AUDIO */
 #audioBox {
     border:3px dashed #9bb7d9;
     background:#f4f9ff;
@@ -52,7 +46,6 @@ h1 { text-align:center; margin:6px 0; }
     background:#eaf8ee;
 }
 
-/* GRID */
 .row {
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -83,7 +76,6 @@ h1 { text-align:center; margin:6px 0; }
     border-color:#2e7d32;
 }
 
-/* CONTROLS */
 .controls button {
     width:44px;
     height:44px;
@@ -92,7 +84,6 @@ h1 { text-align:center; margin:6px 0; }
     margin-right:4px;
 }
 
-/* COMPLETION OVERLAY */
 #completionOverlay {
     display:none;
     position:fixed;
@@ -114,7 +105,6 @@ h1 { text-align:center; margin:6px 0; }
     margin-bottom:20px;
 }
 
-/* FIREWORKS */
 .firework {
     position:absolute;
     width:8px;
@@ -129,7 +119,6 @@ h1 { text-align:center; margin:6px 0; }
     to { transform:scale(6); opacity:0; }
 }
 
-/* RESTART */
 #restartBox {
     text-align:center;
     margin-top:20px;
@@ -247,13 +236,16 @@ const LATIN_CORRECT = [
 "(29) et vitam venturi saeculi. Amen."
 ];
 
+/* ================= STATE ================= */
+
 let latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
 
+// initial shuffle keeping numbered lines fixed
 const fixed = latin.filter(l => /^\(\d+\)/.test(l.text));
 const movable = latin.filter(l => !/^\(\d+\)/.test(l.text)).sort(()=>Math.random()-0.5);
 latin = LATIN_CORRECT.map(t => /^\(\d+\)/.test(t) ? fixed.shift() : movable.shift());
 
-let timerStarted=false, startTime, completed=false, audioUnlocked=false, dragIndex=null;
+let timerStarted=false, startTime=null, completed=false, audioUnlocked=false, dragIndex=null;
 
 /* ================= TIMER ================= */
 
@@ -287,7 +279,7 @@ function render(){
         d.addEventListener("dragstart",()=>{ if(!completed){ dragIndex=i; startTimer(); }});
         d.addEventListener("dragover",e=>e.preventDefault());
         d.addEventListener("drop",()=>{
-            if(dragIndex===null||completed) return;
+            if(dragIndex===null || completed) return;
             const item=latin.splice(dragIndex,1)[0];
             latin.splice(i,0,item);
             dragIndex=null;
@@ -302,7 +294,7 @@ function render(){
         down.textContent="↓";
         down.onclick=()=>move(i,i+1);
 
-        up.disabled=down.disabled=completed;
+        up.disabled = down.disabled = completed;
 
         const c=document.createElement("div");
         c.className="controls";
@@ -338,12 +330,20 @@ function check(){
     }
 
     if(ok===29 && !completed){
-        completed=true;
-        showCompletion();
+        completeGame();
     }
 }
 
-/* ================= COMPLETION ================= */
+/* ================= COMPLETE (REAL) ================= */
+
+function completeGame(){
+    completed = true;
+    latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
+    render();
+    showCompletion();
+}
+
+/* ================= COMPLETION OVERLAY ================= */
 
 function showCompletion(){
     completionOverlay.style.display="block";
@@ -377,9 +377,21 @@ function restartGame(){ location.reload(); }
 
 document.addEventListener("keydown",e=>{
     if(!e.shiftKey) return;
-    if(e.key==="A"){ audioUnlocked=true; audioControls.style.display="block"; }
-    if(e.key==="D"){ latin=LATIN_CORRECT.map((t,i)=>({text:t,correct:i})); completed=false; showCompletion(); }
-    if(e.key==="R"){ restartGame(); }
+
+    if(e.key==="A"){ // unlock audio
+        audioUnlocked=true;
+        audioControls.style.display="block";
+        audioStatus.textContent="🔓 Audio unlocked (instructor)";
+        audioBox.classList.add("unlocked");
+    }
+
+    if(e.key==="D"){ // FORCE REAL COMPLETION
+        completeGame();
+    }
+
+    if(e.key==="R"){ // restart
+        restartGame();
+    }
 });
 
 render(); check();
