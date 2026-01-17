@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Save Our Creed!</title>
+<title>Fix the Creed</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -113,9 +113,11 @@ h1 { text-align:center; margin:6px 0; }
 }
 
 #completionContent h2 {
-    font-size:5rem;          /* BIGGER */
-    color:#1f7a3a;           /* GREEN */
-    margin-bottom:24px;
+    font-size:4.2rem;
+    color:#1f7a3a;
+    margin-bottom:28px;
+    line-height:1.25;
+    font-weight:900;
 }
 
 .firework {
@@ -151,6 +153,7 @@ h1 { text-align:center; margin:6px 0; }
 
 <body>
 
+<!-- ===== PHONE BLOCK ===== -->
 <div id="mobileBlocker" style="
     display:none;
     position:fixed;
@@ -160,14 +163,14 @@ h1 { text-align:center; margin:6px 0; }
     text-align:center;
     padding-top:20vh;
 ">
-    <h1 style="font-size:3rem;">Save Our Creed!</h1>
+    <h1 style="font-size:3rem;">Fix the Creed</h1>
     <p style="font-size:1.6rem; max-width:600px; margin:30px auto;">
         This activity cannot be run on phones.<br><br>
         Please open it on a laptop or desktop computer.
     </p>
 </div>
 
-<h1 style="font-size:3rem;">Save Our Creed!</h1>
+<h1 style="font-size:3rem;">Fix the Creed</h1>
 <h1>RELI/EURO 270: Religion in Western Europe</h1>
 <h1>Dr. Evyatar Marienberg &amp; ChatGPT, 2026</h1>
 
@@ -203,7 +206,12 @@ back in order!
 
 <div id="completionOverlay">
     <div id="completionContent">
-        <h2>Fixed! Halleluja! Glory to the Father, and to the Son, and to the Holy Spirit! And to you too!!!</h2>
+        <h2>
+            Fixed!<br>
+            Halleluja!<br>
+            Glory to the Father, and to the Son, and to the Holy Spirit!<br>
+            And to you too!!!
+        </h2>
         <p id="finalTime"></p>
     </div>
 </div>
@@ -280,6 +288,15 @@ latin = LATIN_CORRECT.map(t => /^\(\d+\)/.test(t) ? fixed.shift() : movable.shif
 
 let timerStarted=false, startTime=null, completed=false, audioUnlocked=false, dragIndex=null;
 
+function unlockAudio(reason="") {
+    audioUnlocked = true;
+    audioControls.style.display = "block";
+    audioStatus.textContent = reason
+        ? `🔓 Audio unlocked (${reason})`
+        : "🔓 Audio unlocked";
+    audioBox.classList.add("unlocked");
+}
+
 function startTimer(){
     if(timerStarted) return;
     timerStarted=true;
@@ -352,20 +369,18 @@ function check(){
     const ok=latin.filter((l,i)=>l.correct===i).length;
     counter.textContent=`${ok} lines out of 29 are correct`;
 
-    if(ok>=12&&!audioUnlocked){
-        audioUnlocked=true;
-        audioControls.style.display="block";
-        audioStatus.textContent="🔓 Audio unlocked";
-        audioBox.classList.add("unlocked");
+    if(ok>=12 && !audioUnlocked){
+        unlockAudio();
     }
 
-    if(ok===29&&!completed){
+    if(ok===29 && !completed){
         completeGame(false);
     }
 }
 
 function completeGame(forced){
     completed=true;
+    unlockAudio("completion");
     latin=LATIN_CORRECT.map((t,i)=>({text:t,correct:i}));
     render();
     counter.textContent="29 lines out of 29 are correct";
@@ -404,18 +419,9 @@ function restartGame(){ location.reload(); }
 
 document.addEventListener("keydown",e=>{
     if(!e.shiftKey) return;
-    if(e.key==="A"){
-        audioUnlocked=true;
-        audioControls.style.display="block";
-        audioStatus.textContent="🔓 Audio unlocked (instructor)";
-        audioBox.classList.add("unlocked");
-    }
-    if(e.key==="D"){
-        completeGame(true);
-    }
-    if(e.key==="R"){
-        restartGame();
-    }
+    if(e.key==="A"){ unlockAudio("instructor"); }
+    if(e.key==="D"){ completeGame(true); }
+    if(e.key==="R"){ restartGame(); }
 });
 
 render(); check();
