@@ -10,6 +10,7 @@ html {
     background: url("creation.jpg") no-repeat center center fixed;
     background-size: cover;
 }
+
 body {
     font-family: Arial, sans-serif;
     max-width: 1200px;
@@ -17,6 +18,7 @@ body {
     padding: 16px;
     background-color: rgba(245, 250, 255, 0.95);
 }
+
 h1 { text-align:center; margin:6px 0; }
 
 #story {
@@ -24,7 +26,7 @@ h1 { text-align:center; margin:6px 0; }
     font-weight:bold;
     line-height:1.7;
     margin:20px 0;
-    font-size: 1.25rem;
+    font-size:1.25rem;
 }
 
 #status {
@@ -41,6 +43,7 @@ h1 { text-align:center; margin:6px 0; }
     margin-bottom:20px;
     text-align:center;
 }
+
 #audioBox.unlocked {
     border-color:#2e7d32;
     background:#eaf8ee;
@@ -123,6 +126,7 @@ h1 { text-align:center; margin:6px 0; }
     text-align:center;
     margin-top:20px;
 }
+
 #restartBox button {
     font-size:1.1rem;
     font-weight:bold;
@@ -136,6 +140,24 @@ h1 { text-align:center; margin:6px 0; }
 </head>
 
 <body>
+
+<!-- ================= PHONE BLOCK ================= -->
+
+<div id="mobileBlocker" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#f2f6ff;
+    z-index:10000;
+    text-align:center;
+    padding-top:20vh;
+">
+    <h1 style="font-size:3rem;">Save Our Creed!</h1>
+    <p style="font-size:1.6rem; max-width:600px; margin:30px auto;">
+        This activity cannot be run on phones.<br><br>
+        Please open it on a laptop or desktop computer.
+    </p>
+</div>
 
 <h1 style="font-size:3rem;">Save Our Creed!</h1>
 <h1>RELI/EURO 270: Religion in Western Europe</h1>
@@ -181,6 +203,18 @@ back in order!
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
+
+/* ================= PHONE BLOCK ================= */
+
+(function blockPhones(){
+    const isPhone = /iPhone|Android.+Mobile|Windows Phone/i.test(navigator.userAgent);
+    if (isPhone) {
+        document.getElementById("mobileBlocker").style.display = "block";
+        document.body.style.overflow = "hidden";
+        throw new Error("Blocked on phone");
+    }
+})();
+
 /* ================= DATA ================= */
 
 const ENGLISH = [
@@ -236,11 +270,9 @@ const LATIN_CORRECT = [
 "(29) et vitam venturi saeculi. Amen."
 ];
 
-/* ================= STATE ================= */
+/* ================= GAME STATE ================= */
 
 let latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
-
-// initial shuffle keeping numbered lines fixed
 const fixed = latin.filter(l => /^\(\d+\)/.test(l.text));
 const movable = latin.filter(l => !/^\(\d+\)/.test(l.text)).sort(()=>Math.random()-0.5);
 latin = LATIN_CORRECT.map(t => /^\(\d+\)/.test(t) ? fixed.shift() : movable.shift());
@@ -330,28 +362,35 @@ function check(){
     }
 
     if(ok===29 && !completed){
-        completeGame();
+        completeGame(false);
     }
 }
 
-/* ================= COMPLETE (REAL) ================= */
+/* ================= COMPLETE ================= */
 
-function completeGame(){
+function completeGame(forced){
     completed = true;
     latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
     render();
+    counter.textContent = "29 lines out of 29 are correct";
+
+    if (forced) {
+        finalTime.textContent = "Completed in 0 minutes and 0 seconds";
+    } else {
+        const s=Math.floor((Date.now()-startTime)/1000);
+        finalTime.textContent=`Completed in ${Math.floor(s/60)} minutes and ${s%60} seconds`;
+    }
+
     showCompletion();
 }
 
-/* ================= COMPLETION OVERLAY ================= */
-
 function showCompletion(){
     completionOverlay.style.display="block";
-    const s=Math.floor((Date.now()-startTime)/1000);
-    finalTime.textContent=`Completed in ${Math.floor(s/60)} minutes and ${s%60} seconds`;
     for(let i=0;i<30;i++) spawnFirework();
     setTimeout(()=>completionOverlay.style.display="none",3500);
 }
+
+/* ================= EFFECTS ================= */
 
 function spawnFirework(){
     const f=document.createElement("div");
@@ -373,23 +412,20 @@ function audioForward(){ audioPlayer.currentTime+=10; }
 
 function restartGame(){ location.reload(); }
 
-/* ================= INSTRUCTOR OVERRIDES ================= */
+/* ================= INSTRUCTOR KEYS ================= */
 
 document.addEventListener("keydown",e=>{
     if(!e.shiftKey) return;
-
-    if(e.key==="A"){ // unlock audio
+    if(e.key==="A"){
         audioUnlocked=true;
         audioControls.style.display="block";
         audioStatus.textContent="🔓 Audio unlocked (instructor)";
         audioBox.classList.add("unlocked");
     }
-
-    if(e.key==="D"){ // FORCE REAL COMPLETION
-        completeGame();
+    if(e.key==="D"){
+        completeGame(true);
     }
-
-    if(e.key==="R"){ // restart
+    if(e.key==="R"){
         restartGame();
     }
 });
