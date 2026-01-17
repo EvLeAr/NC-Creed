@@ -79,19 +79,29 @@ h1 { text-align:center; margin:6px 0; }
     border-color:#2e7d32;
 }
 
+.latin-text {
+    margin-bottom:8px;
+}
+
+.controls {
+    text-align:center;
+}
+
 .controls button {
     width:44px;
     height:44px;
     font-size:1.2rem;
     font-weight:bold;
-    margin-right:4px;
+    margin:0 4px;
 }
+
+/* ===== COMPLETION OVERLAY ===== */
 
 #completionOverlay {
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(180,215,255,0.95);
+    background:rgba(200,235,210,0.96);
     z-index:9999;
 }
 
@@ -103,23 +113,23 @@ h1 { text-align:center; margin:6px 0; }
 }
 
 #completionContent h2 {
-    font-size:4rem;
-    color:gold;
-    margin-bottom:20px;
+    font-size:5rem;          /* BIGGER */
+    color:#1f7a3a;           /* GREEN */
+    margin-bottom:24px;
 }
 
 .firework {
     position:absolute;
     width:8px;
     height:8px;
-    background:gold;
+    background:#1f7a3a;
     border-radius:50%;
     animation:explode 1.5s ease-out forwards;
 }
 
 @keyframes explode {
     from { transform:scale(0); opacity:1; }
-    to { transform:scale(6); opacity:0; }
+    to   { transform:scale(6); opacity:0; }
 }
 
 #restartBox {
@@ -140,8 +150,6 @@ h1 { text-align:center; margin:6px 0; }
 </head>
 
 <body>
-
-<!-- ================= PHONE BLOCK ================= -->
 
 <div id="mobileBlocker" style="
     display:none;
@@ -195,7 +203,7 @@ back in order!
 
 <div id="completionOverlay">
     <div id="completionContent">
-        <h2>Done! Halleluja! Glory!</h2>
+        <h2>Fixed! Halleluja! Glory to the Father, and to the Son, and to the Holy Spirit! And to you too!!!</h2>
         <p id="finalTime"></p>
     </div>
 </div>
@@ -203,9 +211,6 @@ back in order!
 <audio id="audioPlayer" src="NCCreed.mp4"></audio>
 
 <script>
-
-/* ================= PHONE BLOCK ================= */
-
 (function blockPhones(){
     const isPhone = /iPhone|Android.+Mobile|Windows Phone/i.test(navigator.userAgent);
     if (isPhone) {
@@ -214,8 +219,6 @@ back in order!
         throw new Error("Blocked on phone");
     }
 })();
-
-/* ================= DATA ================= */
 
 const ENGLISH = [
 "01. I believe in one God,","02. the Father almighty,",
@@ -270,16 +273,12 @@ const LATIN_CORRECT = [
 "(29) et vitam venturi saeculi. Amen."
 ];
 
-/* ================= GAME STATE ================= */
-
 let latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
 const fixed = latin.filter(l => /^\(\d+\)/.test(l.text));
 const movable = latin.filter(l => !/^\(\d+\)/.test(l.text)).sort(()=>Math.random()-0.5);
 latin = LATIN_CORRECT.map(t => /^\(\d+\)/.test(t) ? fixed.shift() : movable.shift());
 
 let timerStarted=false, startTime=null, completed=false, audioUnlocked=false, dragIndex=null;
-
-/* ================= TIMER ================= */
 
 function startTimer(){
     if(timerStarted) return;
@@ -290,8 +289,6 @@ function startTimer(){
         timer.textContent=`Time: ${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
     },1000);
 }
-
-/* ================= RENDER ================= */
 
 function render(){
     grid.innerHTML="";
@@ -305,13 +302,17 @@ function render(){
 
         const d=document.createElement("div");
         d.className="latin"+(l.correct===i?" correct":"");
-        d.textContent=l.text;
         d.draggable=!completed;
+
+        const text=document.createElement("div");
+        text.className="latin-text";
+        text.textContent=l.text;
+        d.appendChild(text);
 
         d.addEventListener("dragstart",()=>{ if(!completed){ dragIndex=i; startTimer(); }});
         d.addEventListener("dragover",e=>e.preventDefault());
         d.addEventListener("drop",()=>{
-            if(dragIndex===null || completed) return;
+            if(dragIndex===null||completed) return;
             const item=latin.splice(dragIndex,1)[0];
             latin.splice(i,0,item);
             dragIndex=null;
@@ -326,19 +327,18 @@ function render(){
         down.textContent="↓";
         down.onclick=()=>move(i,i+1);
 
-        up.disabled = down.disabled = completed;
+        up.disabled=down.disabled=completed;
 
         const c=document.createElement("div");
         c.className="controls";
         c.append(up,down);
 
-        d.prepend(c);
+        d.appendChild(c);
+
         row.append(e,d);
         grid.append(row);
     });
 }
-
-/* ================= MOVE ================= */
 
 function move(from,to){
     if(completed) return;
@@ -348,34 +348,30 @@ function move(from,to){
     render(); check();
 }
 
-/* ================= CHECK ================= */
-
 function check(){
     const ok=latin.filter((l,i)=>l.correct===i).length;
     counter.textContent=`${ok} lines out of 29 are correct`;
 
-    if(ok>=12 && !audioUnlocked){
+    if(ok>=12&&!audioUnlocked){
         audioUnlocked=true;
         audioControls.style.display="block";
         audioStatus.textContent="🔓 Audio unlocked";
         audioBox.classList.add("unlocked");
     }
 
-    if(ok===29 && !completed){
+    if(ok===29&&!completed){
         completeGame(false);
     }
 }
 
-/* ================= COMPLETE ================= */
-
 function completeGame(forced){
-    completed = true;
-    latin = LATIN_CORRECT.map((t,i)=>({text:t, correct:i}));
+    completed=true;
+    latin=LATIN_CORRECT.map((t,i)=>({text:t,correct:i}));
     render();
-    counter.textContent = "29 lines out of 29 are correct";
+    counter.textContent="29 lines out of 29 are correct";
 
-    if (forced) {
-        finalTime.textContent = "Completed in 0 minutes and 0 seconds";
+    if(forced){
+        finalTime.textContent="Completed in 0 minutes and 0 seconds";
     } else {
         const s=Math.floor((Date.now()-startTime)/1000);
         finalTime.textContent=`Completed in ${Math.floor(s/60)} minutes and ${s%60} seconds`;
@@ -390,8 +386,6 @@ function showCompletion(){
     setTimeout(()=>completionOverlay.style.display="none",3500);
 }
 
-/* ================= EFFECTS ================= */
-
 function spawnFirework(){
     const f=document.createElement("div");
     f.className="firework";
@@ -401,18 +395,12 @@ function spawnFirework(){
     setTimeout(()=>f.remove(),1500);
 }
 
-/* ================= AUDIO ================= */
-
 function audioPlay(){ audioPlayer.play(); }
 function audioPause(){ audioPlayer.pause(); }
 function audioBack(){ audioPlayer.currentTime=Math.max(0,audioPlayer.currentTime-10); }
 function audioForward(){ audioPlayer.currentTime+=10; }
 
-/* ================= RESTART ================= */
-
 function restartGame(){ location.reload(); }
-
-/* ================= INSTRUCTOR KEYS ================= */
 
 document.addEventListener("keydown",e=>{
     if(!e.shiftKey) return;
